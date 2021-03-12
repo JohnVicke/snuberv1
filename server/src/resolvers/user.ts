@@ -17,17 +17,20 @@ type Error = {
 };
 
 type UserResponse = {
-  user: User;
-  error: [Error];
+  user?: User;
+  error?: [Error];
 };
 
 @InputType()
 class UserInput {
-  @Field(() => String)
+  @Field()
   username: string;
 
-  @Field(() => String)
+  @Field()
   password: string;
+
+  @Field()
+  displayName: string;
 }
 
 @Resolver()
@@ -36,12 +39,48 @@ export class UserResolver {
   async register(
     @Arg("input") userInput: UserInput,
     @Ctx() { em }: SnuberContext
-  ): Promise<User> {
-    const { username, password } = userInput;
+  ): Promise<UserResponse> {
+    const { username, password, displayName } = userInput;
+    // TODO: Add better validation, check libraries. Also refactor.
+    if (username.length < 3) {
+      return {
+        error: [
+          {
+            field: "username",
+            message: "Lenght of username must be greater than 3",
+          },
+        ],
+      };
+    }
+    if (password.length < 3) {
+      return {
+        error: [
+          {
+            field: "password",
+            message: "Length of password must be greater than 3",
+          },
+        ],
+      };
+    }
+    const userExists = !!(await em.find(User, { username }));
+    if (userExists) {
+      return {
+        error: [
+          {
+            field: "username",
+            message: "User already exists",
+          },
+        ],
+      };
+    }
     const hashedPassword = await hash(password);
-    const user = em.create(User, { username, password: hashedPassword });
+    const user = em.create(User, {
+      username,
+      password: hashedPassword,
+      displayName,
+    });
     await em.persistAndFlush(user);
-    return user;
+    return { user };
   }
   @Query(() => String)
   hello(): string {

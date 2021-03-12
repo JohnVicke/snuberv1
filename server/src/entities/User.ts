@@ -16,10 +16,12 @@ export class User {
   @Property({ type: "date", onUpdate: () => new Date() })
   updatedAt = new Date();
 
+  // username is users "account name", used for loggin in
   @Field()
   @Property({ type: "text", unique: true })
   username!: string;
 
+  // displayname is what is shown to other users. Should be able to do namechanges
   @Field()
   @Property({ type: "text" })
   displayName!: string;
