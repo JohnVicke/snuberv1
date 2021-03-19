@@ -12,21 +12,21 @@ import {
 } from "type-graphql";
 import argon2 from "argon2";
 
-@ObjectType() 
+@ObjectType()
 class FieldError {
   @Field()
   field: string;
 
   @Field()
   message: string;
-};
+}
 
 @ObjectType()
 class UserResponse {
-  @Field(() => [FieldError], {nullable: true})
+  @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
 
-  @Field(()=> User, {nullable: true})
+  @Field(() => User, { nullable: true })
   user?: User;
 }
 
@@ -38,7 +38,7 @@ class UserInput {
   @Field()
   password: string;
 
-  @Field(() => String, {nullable: true})
+  @Field(() => String, { nullable: true })
   displayName?: string;
 }
 
@@ -47,7 +47,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg("input") userInput: UserInput,
-    @Ctx() { em }: SnuberContext
+    @Ctx() { em, req }: SnuberContext
   ): Promise<UserResponse> {
     const { username, password, displayName } = userInput;
     // TODO: Add better validation, check libraries. Also refactor.
@@ -71,7 +71,7 @@ export class UserResolver {
         ],
       };
     }
-    const userExists = !(await em.find(User, { username }));
+    const userExists = await em.findOne(User, { username });
     if (userExists) {
       return {
         errors: [
@@ -89,46 +89,52 @@ export class UserResolver {
       displayName,
     });
     await em.persistAndFlush(user);
+    req.session.userId = user.id;
     return { user };
   }
+
   @Mutation(() => UserResponse)
   async login(
     @Arg("input") userInput: UserInput,
-    @Ctx() { em }: SnuberContext
+    @Ctx() { em, req }: SnuberContext
   ): Promise<UserResponse> {
-
     const { username, password } = userInput;
-    const user = await em.findOne(User, {username});
+    const user = await em.findOne(User, { username });
 
-    if(!user) {
+    if (!user) {
       return {
         errors: [
           {
             field: "user",
-            message: "User does not exist!"
-          }
-        ]
-      }
+            message: "User does not exist!",
+          },
+        ],
+      };
     }
 
     const validPassword = await argon2.verify(user.password, password);
 
-    if(!validPassword) {
+    if (!validPassword) {
       return {
         errors: [
           {
             field: "password",
-            message: "Incorrect password!"
-          }
-        ]
-      }
+            message: "Incorrect password!",
+          },
+        ],
+      };
     }
 
-    return {user};
+    req.session.userId = user.id;
+    return { user };
   }
- 
-  @Query(() => String)
-  hello(): string {
-    return "hello";
+
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { req, em }: SnuberContext) {
+    if (!req.session.userId) {
+      return null;
+    }
+    const user = em.findOne(User, { id: req.session.userId });
+    return user;
   }
 }
