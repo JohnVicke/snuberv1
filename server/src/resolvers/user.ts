@@ -6,20 +6,29 @@ import {
   Field,
   InputType,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
 } from "type-graphql";
-import { hash } from "argon2";
+import argon2 from "argon2";
 
-type Error = {
+@ObjectType() 
+class FieldError {
+  @Field()
   field: string;
+
+  @Field()
   message: string;
 };
 
-type UserResponse = {
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], {nullable: true})
+  errors?: FieldError[];
+
+  @Field(()=> User, {nullable: true})
   user?: User;
-  error?: [Error];
-};
+}
 
 @InputType()
 class UserInput {
@@ -29,13 +38,13 @@ class UserInput {
   @Field()
   password: string;
 
-  @Field()
-  displayName: string;
+  @Field(() => String, {nullable: true})
+  displayName?: string;
 }
 
 @Resolver()
 export class UserResolver {
-  @Mutation(() => User)
+  @Mutation(() => UserResponse)
   async register(
     @Arg("input") userInput: UserInput,
     @Ctx() { em }: SnuberContext
@@ -44,7 +53,7 @@ export class UserResolver {
     // TODO: Add better validation, check libraries. Also refactor.
     if (username.length < 3) {
       return {
-        error: [
+        errors: [
           {
             field: "username",
             message: "Lenght of username must be greater than 3",
@@ -54,7 +63,7 @@ export class UserResolver {
     }
     if (password.length < 3) {
       return {
-        error: [
+        errors: [
           {
             field: "password",
             message: "Length of password must be greater than 3",
@@ -62,10 +71,10 @@ export class UserResolver {
         ],
       };
     }
-    const userExists = !!(await em.find(User, { username }));
+    const userExists = !(await em.find(User, { username }));
     if (userExists) {
       return {
-        error: [
+        errors: [
           {
             field: "username",
             message: "User already exists",
@@ -73,7 +82,7 @@ export class UserResolver {
         ],
       };
     }
-    const hashedPassword = await hash(password);
+    const hashedPassword = await argon2.hash(password);
     const user = em.create(User, {
       username,
       password: hashedPassword,
@@ -82,6 +91,42 @@ export class UserResolver {
     await em.persistAndFlush(user);
     return { user };
   }
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("input") userInput: UserInput,
+    @Ctx() { em }: SnuberContext
+  ): Promise<UserResponse> {
+
+    const { username, password } = userInput;
+    const user = await em.findOne(User, {username});
+
+    if(!user) {
+      return {
+        errors: [
+          {
+            field: "user",
+            message: "User does not exist!"
+          }
+        ]
+      }
+    }
+
+    const validPassword = await argon2.verify(user.password, password);
+
+    if(!validPassword) {
+      return {
+        errors: [
+          {
+            field: "password",
+            message: "Incorrect password!"
+          }
+        ]
+      }
+    }
+
+    return {user};
+  }
+ 
   @Query(() => String)
   hello(): string {
     return "hello";
