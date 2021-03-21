@@ -1,17 +1,18 @@
-import "reflect-metadata";
-import "dotenv-safe/config";
-import { MikroORM } from "@mikro-orm/core";
-import { ApolloServer } from "apollo-server-express";
-import { buildSchema } from "type-graphql";
-import mikroConfig from "./mikro-orm.config";
-import express from "express";
-import redis from "redis";
-import session from "express-session";
-import connectRedis from "connect-redis";
+import 'reflect-metadata';
+import 'dotenv-safe/config';
+import { MikroORM } from '@mikro-orm/core';
+import { ApolloServer } from 'apollo-server-express';
+import { buildSchema } from 'type-graphql';
+import mikroConfig from './mikro-orm.config';
+import express from 'express';
+import redis from 'redis';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+import cors from 'cors';
 
-import { __prod__, PORT, REDIS_SECRET } from "./constants";
-import { UserResolver } from "./resolvers/user";
-import { SnuberContext } from "./types";
+import { __prod__, PORT, REDIS_SECRET, COOKIE_NAME } from './constants';
+import { UserResolver } from './resolvers/user';
+import { SnuberContext } from './types';
 
 (async () => {
   const orm = await MikroORM.init(mikroConfig);
@@ -26,36 +27,43 @@ import { SnuberContext } from "./types";
   });
 
   app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true
+    })
+  );
+
+  app.use(
     session({
-      name: "qid",
+      name: COOKIE_NAME,
       store: new RedisStore({
         client: redisClient,
-        disableTouch: true,
+        disableTouch: true
       }),
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
         secure: __prod__,
-        sameSite: "lax",
+        sameSite: 'lax'
       },
       secret: REDIS_SECRET,
-      resave: false,
+      resave: false
     })
   );
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UserResolver],
-      validate: false,
+      validate: false
     }),
     context: ({ req, res }): SnuberContext => ({
       em: orm.em,
       req,
-      res,
-    }),
+      res
+    })
   });
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: false });
 })().catch((error) => {
   console.error(error);
 });

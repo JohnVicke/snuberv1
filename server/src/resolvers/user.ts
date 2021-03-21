@@ -1,5 +1,5 @@
-import { User } from "../entities/User";
-import { SnuberContext } from "src/types";
+import { User } from '../entities/User';
+import { SnuberContext } from 'src/types';
 import {
   Arg,
   Ctx,
@@ -8,9 +8,10 @@ import {
   Mutation,
   ObjectType,
   Query,
-  Resolver,
-} from "type-graphql";
-import argon2 from "argon2";
+  Resolver
+} from 'type-graphql';
+import argon2 from 'argon2';
+import { COOKIE_NAME } from '../constants';
 
 @ObjectType()
 class FieldError {
@@ -46,7 +47,7 @@ class UserInput {
 export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
-    @Arg("input") userInput: UserInput,
+    @Arg('input') userInput: UserInput,
     @Ctx() { em, req }: SnuberContext
   ): Promise<UserResponse> {
     const { username, password, displayName } = userInput;
@@ -55,20 +56,20 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: "username",
-            message: "Lenght of username must be greater than 3",
-          },
-        ],
+            field: 'username',
+            message: 'Lenght of username must be greater than 3'
+          }
+        ]
       };
     }
     if (password.length < 3) {
       return {
         errors: [
           {
-            field: "password",
-            message: "Length of password must be greater than 3",
-          },
-        ],
+            field: 'password',
+            message: 'Length of password must be greater than 3'
+          }
+        ]
       };
     }
     const userExists = await em.findOne(User, { username });
@@ -76,17 +77,17 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: "username",
-            message: "User already exists",
-          },
-        ],
+            field: 'username',
+            message: 'User already exists'
+          }
+        ]
       };
     }
     const hashedPassword = await argon2.hash(password);
     const user = em.create(User, {
       username,
       password: hashedPassword,
-      displayName,
+      displayName
     });
     await em.persistAndFlush(user);
     req.session.userId = user.id;
@@ -95,7 +96,7 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("input") userInput: UserInput,
+    @Arg('input') userInput: UserInput,
     @Ctx() { em, req }: SnuberContext
   ): Promise<UserResponse> {
     const { username, password } = userInput;
@@ -105,10 +106,10 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: "user",
-            message: "User does not exist!",
-          },
-        ],
+            field: 'username',
+            message: 'User does not exist!'
+          }
+        ]
       };
     }
 
@@ -118,10 +119,10 @@ export class UserResolver {
       return {
         errors: [
           {
-            field: "password",
-            message: "Incorrect password!",
-          },
-        ],
+            field: 'password',
+            message: 'Incorrect password!'
+          }
+        ]
       };
     }
 
@@ -130,11 +131,25 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { req, em }: SnuberContext) {
+  async me(@Ctx() { req, em }: SnuberContext): Promise<User | null> {
     if (!req.session.userId) {
       return null;
     }
-    const user = em.findOne(User, { id: req.session.userId });
-    return user;
+    return em.findOne(User, { id: req.session.userId });
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: SnuberContext) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        res.clearCookie(COOKIE_NAME);
+        if (err) {
+          console.error(err);
+          resolve(false);
+          return;
+        }
+        resolve(true);
+      })
+    );
   }
 }
