@@ -5,7 +5,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import mikroConfig from './mikro-orm.config';
 import express from 'express';
-import redis from 'redis';
+import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
@@ -20,7 +20,7 @@ import { SnuberContext } from './types';
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  const redis = new Redis();
 
   app.listen(PORT, () => {
     console.log(`server started on port:${PORT}`);
@@ -37,7 +37,7 @@ import { SnuberContext } from './types';
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redisClient,
+        client: redis,
         disableTouch: true
       }),
       cookie: {
@@ -59,7 +59,8 @@ import { SnuberContext } from './types';
     context: ({ req, res }): SnuberContext => ({
       em: orm.em,
       req,
-      res
+      res,
+      redis
     })
   });
 

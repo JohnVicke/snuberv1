@@ -1,4 +1,4 @@
-import { Box, Button } from '@chakra-ui/react';
+import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import React from 'react';
 import { toErrorMap } from '../utils/toErrorMap';
@@ -8,6 +8,7 @@ import { useLoginMutation } from '../generated/graphql';
 import { useRouter } from 'next/router';
 import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utils/createUrqlClient';
+import NextLink from 'next/link';
 
 const Login: React.FC<{}> = ({}) => {
   const router = useRouter();
@@ -15,9 +16,9 @@ const Login: React.FC<{}> = ({}) => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ usernameOrEmail: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await login({ input: values });
+          const response = await login(values);
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
@@ -29,9 +30,9 @@ const Login: React.FC<{}> = ({}) => {
         {({ isSubmitting }) => (
           <Form>
             <InputField
-              name="username"
-              placeholder="username"
-              label="Username"
+              name="usernameOrEmail"
+              placeholder="Username or Email"
+              label="Username or Email"
             />
             <Box mt={4}>
               <InputField
@@ -41,15 +42,19 @@ const Login: React.FC<{}> = ({}) => {
                 label="Password"
               />
             </Box>
-            <Button
-              type="submit"
-              variant="solid"
-              color="teal"
-              mt={4}
-              isLoading={isSubmitting}
-            >
-              Login
-            </Button>
+            <Flex alignItems="center" mt={4} justifyContent="space-between">
+              <Button
+                type="submit"
+                variant="solid"
+                background="teal"
+                isLoading={isSubmitting}
+              >
+                Login
+              </Button>
+              <NextLink href="forgot-password">
+                <Link> Forgot Password?</Link>
+              </NextLink>
+            </Flex>
           </Form>
         )}
       </Formik>

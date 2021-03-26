@@ -4,14 +4,17 @@ import {
   Arg,
   Ctx,
   Field,
-  InputType,
   Mutation,
   ObjectType,
   Query,
   Resolver
 } from 'type-graphql';
 import argon2 from 'argon2';
-import { COOKIE_NAME } from '../constants';
+import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from '../constants';
+import { UserInput } from './UserInput';
+import { validateRegister } from '../utils/validateRegister';
+import { sendEmail } from '../utils/sendEmail';
+import { v4 } from 'uuid';
 
 @ObjectType()
 class FieldError {
@@ -31,47 +34,95 @@ class UserResponse {
   user?: User;
 }
 
-@InputType()
-class UserInput {
-  @Field()
-  username: string;
-
-  @Field()
-  password: string;
-
-  @Field(() => String, { nullable: true })
-  displayName?: string;
-}
-
 @Resolver()
 export class UserResolver {
-  @Mutation(() => UserResponse)
-  async register(
-    @Arg('input') userInput: UserInput,
-    @Ctx() { em, req }: SnuberContext
-  ): Promise<UserResponse> {
-    const { username, password, displayName } = userInput;
-    // TODO: Add better validation, check libraries. Also refactor.
-    if (username.length < 3) {
-      return {
-        errors: [
-          {
-            field: 'username',
-            message: 'Lenght of username must be greater than 3'
-          }
-        ]
-      };
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg('email') email: string,
+    @Ctx() { em, redis }: SnuberContext
+  ) {
+    const user = await em.findOne(User, { email });
+    if (!user) {
+      // return true for security reasons
+      return true;
     }
-    if (password.length < 3) {
+
+    const token = v4();
+    await redis.set(
+      FORGOT_PASSWORD_PREFIX + token,
+      user.id,
+      'ex',
+      1000 * 60 * 60 * 24 * 3
+    );
+
+    const html = `<a href="http://localhost:3000/change-password/${token}">Reset your password</a>`;
+    await sendEmail(email, html);
+    return true;
+  }
+
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg('token') token: string,
+    @Arg('newPassword') newPassword: string,
+    @Ctx() { em, redis, req }: SnuberContext
+  ): Promise<UserResponse> {
+    if (newPassword.length < 3) {
       return {
         errors: [
           {
-            field: 'password',
+            field: 'newPassword',
             message: 'Length of password must be greater than 3'
           }
         ]
       };
     }
+
+    const key = FORGOT_PASSWORD_PREFIX + token;
+    const userId = await redis.get(key);
+
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: 'token',
+            message: 'Token expired'
+          }
+        ]
+      };
+    }
+
+    const user = await em.findOne(User, { id: parseInt(userId) });
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: 'token',
+            message: 'User no longer exists'
+          }
+        ]
+      };
+    }
+
+    const hashedPassword = await argon2.hash(newPassword);
+    user.password = hashedPassword;
+    em.persistAndFlush(user);
+
+    req.session.userId = user.id;
+    redis.del(key);
+
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  async register(
+    @Arg('input') userInput: UserInput,
+    @Ctx() { em, req }: SnuberContext
+  ): Promise<UserResponse> {
+    const { username, password, displayName, email } = userInput;
+    const errors = validateRegister(userInput);
+    if (errors) return { errors };
+
     const userExists = await em.findOne(User, { username });
     if (userExists) {
       return {
@@ -87,7 +138,8 @@ export class UserResolver {
     const user = em.create(User, {
       username,
       password: hashedPassword,
-      displayName
+      displayName: displayName,
+      email
     });
     await em.persistAndFlush(user);
     req.session.userId = user.id;
@@ -96,17 +148,25 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg('input') userInput: UserInput,
+    @Arg('usernameOrEmail') usernameOrEmail: string,
+    @Arg('password') password: string,
     @Ctx() { em, req }: SnuberContext
   ): Promise<UserResponse> {
-    const { username, password } = userInput;
-    const user = await em.findOne(User, { username });
+    const where = usernameOrEmail.includes('@')
+      ? {
+          email: usernameOrEmail
+        }
+      : {
+          username: usernameOrEmail
+        };
+
+    const user = await em.findOne(User, where);
 
     if (!user) {
       return {
         errors: [
           {
-            field: 'username',
+            field: 'usernameOrEmail',
             message: 'User does not exist!'
           }
         ]
