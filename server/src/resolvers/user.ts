@@ -15,6 +15,7 @@ import { UserInput } from './UserInput';
 import { validateRegister } from '../utils/validateRegister';
 import { sendEmail } from '../utils/sendEmail';
 import { v4 } from 'uuid';
+import { getConnection } from 'typeorm';
 
 @ObjectType()
 class FieldError {
@@ -39,9 +40,9 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async forgotPassword(
     @Arg('email') email: string,
-    @Ctx() { em, redis }: SnuberContext
+    @Ctx() { redis }: SnuberContext
   ) {
-    const user = await em.findOne(User, { email });
+    const user = await User.findOne({ where: email });
     if (!user) {
       // return true for security reasons
       return true;
@@ -64,7 +65,7 @@ export class UserResolver {
   async changePassword(
     @Arg('token') token: string,
     @Arg('newPassword') newPassword: string,
-    @Ctx() { em, redis, req }: SnuberContext
+    @Ctx() { redis, req }: SnuberContext
   ): Promise<UserResponse> {
     if (newPassword.length < 3) {
       return {
@@ -91,7 +92,8 @@ export class UserResolver {
       };
     }
 
-    const user = await em.findOne(User, { id: parseInt(userId) });
+    const userIdNum = parseInt(userId);
+    const user = await User.findOne(userIdNum);
 
     if (!user) {
       return {
@@ -104,9 +106,10 @@ export class UserResolver {
       };
     }
 
-    const hashedPassword = await argon2.hash(newPassword);
-    user.password = hashedPassword;
-    em.persistAndFlush(user);
+    await User.update(
+      { id: userIdNum },
+      { password: await argon2.hash(newPassword) }
+    );
 
     req.session.userId = user.id;
     redis.del(key);
@@ -117,31 +120,41 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg('input') userInput: UserInput,
-    @Ctx() { em, req }: SnuberContext
+    @Ctx() { req }: SnuberContext
   ): Promise<UserResponse> {
     const { username, password, displayName, email } = userInput;
     const errors = validateRegister(userInput);
     if (errors) return { errors };
 
-    const userExists = await em.findOne(User, { username });
-    if (userExists) {
-      return {
-        errors: [
-          {
-            field: 'username',
-            message: 'User already exists'
-          }
-        ]
-      };
-    }
     const hashedPassword = await argon2.hash(password);
-    const user = em.create(User, {
-      username,
-      password: hashedPassword,
-      displayName: displayName,
-      email
-    });
-    await em.persistAndFlush(user);
+
+    let user;
+    try {
+      const result = await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(User)
+        .values({
+          username,
+          password: hashedPassword,
+          displayName: displayName,
+          email
+        })
+        .returning('*')
+        .execute();
+      user = result.raw[0];
+    } catch (err) {
+      if (err.code === '23505')
+        return {
+          errors: [
+            {
+              field: 'username',
+              message: 'username already taken'
+            }
+          ]
+        };
+    }
+
     req.session.userId = user.id;
     return { user };
   }
@@ -150,17 +163,17 @@ export class UserResolver {
   async login(
     @Arg('usernameOrEmail') usernameOrEmail: string,
     @Arg('password') password: string,
-    @Ctx() { em, req }: SnuberContext
+    @Ctx() { req }: SnuberContext
   ): Promise<UserResponse> {
-    const where = usernameOrEmail.includes('@')
-      ? {
-          email: usernameOrEmail
-        }
-      : {
-          username: usernameOrEmail
-        };
-
-    const user = await em.findOne(User, where);
+    const user = await User.findOne(
+      usernameOrEmail.includes('@')
+        ? {
+            where: { email: usernameOrEmail }
+          }
+        : {
+            where: { username: usernameOrEmail }
+          }
+    );
 
     if (!user) {
       return {
@@ -191,11 +204,11 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { req, em }: SnuberContext): Promise<User | null> {
+  me(@Ctx() { req }: SnuberContext) {
     if (!req.session.userId) {
       return null;
     }
-    return em.findOne(User, { id: req.session.userId });
+    return User.findOne(req.session.userId);
   }
 
   @Mutation(() => Boolean)

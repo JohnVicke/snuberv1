@@ -1,13 +1,29 @@
-import { dedupExchange, fetchExchange } from 'urql';
 import { cacheExchange } from '@urql/exchange-graphcache';
+import { dedupExchange, Exchange, fetchExchange } from 'urql';
+import { pipe, tap } from 'wonka';
 import {
   LoginMutation,
-  MeQuery,
+  LogoutMutation,
   MeDocument,
-  RegisterMutation,
-  LogoutMutation
+  MeQuery,
+  RegisterMutation
 } from '../generated/graphql';
 import { betterUpdateQuery } from './betterUpdateQuery';
+import Router from 'next/router';
+
+export const errorExchange: Exchange = ({ forward }) => (ops$) => {
+  return pipe(
+    forward(ops$),
+    tap(({ error }) => {
+      if (error) {
+        if (error?.message.includes('not authenticated')) {
+          console.log('error', error);
+          Router.replace('/login');
+        }
+      }
+    })
+  );
+};
 
 /**
  * Use on pages with dynamic data where SEO matters etc.
@@ -74,6 +90,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
         }
       }
     }),
+    errorExchange,
     ssrExchange,
     fetchExchange
   ]

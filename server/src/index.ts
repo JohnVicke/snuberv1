@@ -1,22 +1,39 @@
 import 'reflect-metadata';
 import 'dotenv-safe/config';
-import { MikroORM } from '@mikro-orm/core';
+import { createConnection } from 'typeorm';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
-import mikroConfig from './mikro-orm.config';
 import express from 'express';
 import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 
-import { __prod__, PORT, REDIS_SECRET, COOKIE_NAME } from './constants';
+import {
+  __prod__,
+  PORT,
+  REDIS_SECRET,
+  COOKIE_NAME,
+  DB_USER,
+  DB_PASSWORD
+} from './constants';
+import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { SnuberContext } from './types';
+import { User } from './entities/User';
+import { Post } from './entities/Post';
 
 (async () => {
-  const orm = await MikroORM.init(mikroConfig);
-  await orm.getMigrator().up();
+  const connection = await createConnection({
+    type: 'postgres',
+    database: 'snuber-v2',
+    username: DB_USER,
+    password: DB_PASSWORD,
+    logging: true,
+    synchronize: true,
+    entities: [User, Post]
+  });
+
   const app = express();
 
   const RedisStore = connectRedis(session);
@@ -53,11 +70,10 @@ import { SnuberContext } from './types';
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, PostResolver],
       validate: false
     }),
     context: ({ req, res }): SnuberContext => ({
-      em: orm.em,
       req,
       res,
       redis
