@@ -1,17 +1,19 @@
+import { Box, Flex } from '@chakra-ui/react';
 import React from 'react';
 import { Sidenav } from './sidenav/Sidenav';
 import { Wrapper, WrapperVariant } from './Wrapper';
 
 interface LayoutProps {
   variant?: WrapperVariant;
+  active: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ variant, children }) => {
+const Layout: React.FC<LayoutProps> = ({ active, variant, children }) => {
   return (
-    <>
-      <Sidenav />
-      <Wrapper variant={variant}>{children}</Wrapper>
-    </>
+    <Flex>
+      <Sidenav active={active} />
+      <Box m={12}>{children}</Box>
+    </Flex>
   );
 };
 

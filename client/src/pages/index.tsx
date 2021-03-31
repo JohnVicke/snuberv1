@@ -8,7 +8,7 @@ import { usePostsQuery } from '../generated/graphql';
 const Index = () => {
   const [{ data }] = usePostsQuery();
   return (
-    <Layout>
+    <Layout active="">
       {!data ? (
         <div>loading...</div>
       ) : (
