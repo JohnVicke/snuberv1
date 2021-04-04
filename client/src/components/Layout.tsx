@@ -12,7 +12,9 @@ const Layout: React.FC<LayoutProps> = ({ active, variant, children }) => {
   return (
     <Flex>
       <Sidenav active={active} />
-      <Box m={12}>{children}</Box>
+      <Box m={12} flex="1">
+        <Wrapper variant={variant}>{children}</Wrapper>
+      </Box>
     </Flex>
   );
 };

@@ -7,17 +7,20 @@ interface WrapperProps {
   variant?: WrapperVariant;
 }
 
-export const Wrapper: React.FC<WrapperProps> = ({
-  children,
-  variant = 'regular'
-}) => {
+export const Wrapper: React.FC<WrapperProps> = ({ children, variant = '' }) => {
+  const getMaxW = (): string | number => {
+    switch (variant) {
+      case 'small':
+        return 400;
+      case 'regular':
+        return 800;
+      default:
+        return '100%';
+    }
+  };
+
   return (
-    <Box
-      mx="auto"
-      maxW={variant === 'regular' ? '800px' : '400px'}
-      w="100%"
-      mt={8}
-    >
+    <Box mx="auto" maxW={getMaxW()} w="100%" mt={8}>
       {children}
     </Box>
   );
