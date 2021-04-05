@@ -8,6 +8,7 @@
     "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^1.0.8",
     "@chakra-ui/react": "^1.0.0",
     "@chakra-ui/theme-tools": "^1.1.1",
     "@emotion/react": "^11.1.5",
@@ -16,6 +17,7 @@
     "formik": "^2.2.6",
     "framer-motion": "^2.9.4",
     "graphql": "^15.5.0",
+    "graphql-tag": "^2.11.0",
     "isomorphic-unfetch": "^3.1.0",
     "next": "latest",
     "next-urql": "^3.0.0",

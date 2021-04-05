@@ -6,6 +6,8 @@ import {
   Button,
   Flex,
   Heading,
+  Icon,
+  IconButton,
   Link,
   Stack,
   Text
@@ -13,24 +15,30 @@ import {
 import NextLink from 'next/link';
 import { usePostsQuery } from '../generated/graphql';
 import { useState } from 'react';
+import { UpdootSection } from '../components/UpdootSection';
 
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 10,
+    limit: 15,
     cursor: null as string | null
   });
-  const [{ data, fetching }] = usePostsQuery({
+  const [{ data, error, fetching }] = usePostsQuery({
     variables
   });
 
   if (!fetching && !data) {
-    return <div>Query failed</div>;
+    return (
+      <>
+        <div>Query failed</div>
+        <div>{error?.message}</div>
+      </>
+    );
   }
 
   return (
     <Layout active="">
       <Flex mb={8} align="center">
-        <Heading>Snuber</Heading>
+        <Text fontSize="xl">Posts</Text>
         <NextLink href="/create-post">
           <Link ml="auto">create post</Link>
         </NextLink>
@@ -40,10 +48,18 @@ const Index = () => {
       ) : (
         <Stack spacing={8}>
           {data!.posts.posts.map((p) => (
-            <Box p={5} shadow="md" borderWidth="1px" key={p.id + p.title}>
-              <Heading fontSize="xl">{p.type}</Heading>
-              <Text mt={4}>{p.textSnippet}</Text>
-            </Box>
+            <Flex p={5} shadow="md" borderWidth="1px" key={p.id + p.title}>
+              <UpdootSection post={p} />
+              <Box>
+                <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                  <Link>
+                    <Heading fontSize="xl">{p.type}</Heading>
+                  </Link>
+                </NextLink>
+                <Text>Posted by: {p.creator.username}</Text>
+                <Text mt={4}>{p.textSnippet}</Text>
+              </Box>
+            </Flex>
           ))}
         </Stack>
       )}
@@ -68,4 +84,4 @@ const Index = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Index);
+export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
