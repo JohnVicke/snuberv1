@@ -22,6 +22,10 @@ import { UserResolver } from './resolvers/user';
 import { SnuberContext } from './types';
 import { User } from './entities/User';
 import { Post } from './entities/Post';
+import path from 'path';
+import { Updoot } from './entities/Updoot';
+import { createUserLoader } from './utils/createUserLoader';
+import { createUpdootLoader } from './utils/createUpdootLoader';
 
 (async () => {
   const connection = await createConnection({
@@ -31,8 +35,12 @@ import { Post } from './entities/Post';
     password: DB_PASSWORD,
     logging: true,
     synchronize: true,
-    entities: [User, Post]
+    entities: [User, Post, Updoot],
+    migrations: [path.join(__dirname, './migrations/*')]
   });
+
+  connection.runMigrations();
+  //await Post.delete({});
 
   const app = express();
 
@@ -76,7 +84,9 @@ import { Post } from './entities/Post';
     context: ({ req, res }): SnuberContext => ({
       req,
       res,
-      redis
+      redis,
+      userLoader: createUserLoader(),
+      updootLoader: createUpdootLoader()
     })
   });
 
