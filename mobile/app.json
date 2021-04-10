@@ -1,0 +1,12 @@
+{
+  "name": "jibb",
+  "displayName": "jibb",
+  "expo": {
+    "name": "jibb",
+    "slug": "jibb",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}

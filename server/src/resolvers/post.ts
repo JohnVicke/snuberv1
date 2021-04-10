@@ -129,8 +129,7 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => String, { nullable: true }) cursor: string | null, // cursor based pagination
-    @Ctx() { req }: SnuberContext
+    @Arg('cursor', () => String, { nullable: true }) cursor: string | null // cursor based pagination
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit) + 1;
     const realLimitPlusOne = Math.min(50, limit) + 1;

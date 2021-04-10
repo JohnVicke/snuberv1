@@ -9,14 +9,7 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 
-import {
-  __prod__,
-  PORT,
-  REDIS_SECRET,
-  COOKIE_NAME,
-  DB_USER,
-  DB_PASSWORD
-} from './constants';
+import { __prod__, PORT, REDIS_SECRET, COOKIE_NAME } from './constants';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { SnuberContext } from './types';
@@ -30,30 +23,27 @@ import { createUpdootLoader } from './utils/createUpdootLoader';
 (async () => {
   const connection = await createConnection({
     type: 'postgres',
-    database: 'snuber-v2',
-    username: DB_USER,
-    password: DB_PASSWORD,
+    url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
+    // synchronize: true,
     entities: [User, Post, Updoot],
     migrations: [path.join(__dirname, './migrations/*')]
   });
 
-  connection.runMigrations();
+  await connection.runMigrations();
   //await Post.delete({});
 
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
 
-  app.listen(PORT, () => {
-    console.log(`server started on port:${PORT}`);
-  });
+  // nginx proxy
+  app.set('proxy', 1);
 
   app.use(
     cors({
-      origin: 'http://localhost:3000',
+      origin: process.env.CORS_ORIGIN,
       credentials: true
     })
   );
@@ -69,7 +59,8 @@ import { createUpdootLoader } from './utils/createUpdootLoader';
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
         httpOnly: true,
         secure: __prod__,
-        sameSite: 'lax'
+        sameSite: 'lax',
+        domain: __prod__ ? '.viktormalmedal.com' : undefined
       },
       secret: REDIS_SECRET,
       resave: false
@@ -81,6 +72,7 @@ import { createUpdootLoader } from './utils/createUpdootLoader';
       resolvers: [UserResolver, PostResolver],
       validate: false
     }),
+
     context: ({ req, res }): SnuberContext => ({
       req,
       res,
@@ -91,6 +83,10 @@ import { createUpdootLoader } from './utils/createUpdootLoader';
   });
 
   apolloServer.applyMiddleware({ app, cors: false });
+
+  app.listen(typeof PORT === 'string' ? parseInt(PORT) : PORT, () => {
+    console.log(`server started on port:${PORT}`);
+  });
 })().catch((error) => {
   console.error(error);
 });
