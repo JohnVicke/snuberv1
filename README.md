@@ -1,4 +1,7 @@
+
 # snuber
+<img src="https://github.com/JohnVicke/snuber/blob/master/snuberlogo1024.jpg" alt="drawing" width="200"/>
+
 Snuber is the new social media network for snus lovers.
 
 | Codebase | Responsibility |
