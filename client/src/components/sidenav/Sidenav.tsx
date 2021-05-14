@@ -31,7 +31,7 @@ export const Sidenav: React.FC<SidenavProps> = ({ active }) => {
 
   return (
     <Flex
-      position="sticky"
+      position="fixed"
       bg="gray.900"
       maxW={250}
       padding={4}
