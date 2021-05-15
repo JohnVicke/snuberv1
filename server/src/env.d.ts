@@ -6,5 +6,7 @@ declare namespace NodeJS {
     NODE_ENV: string;
     REDIS_SECRET: string;
     CORS_ORIGIN: string;
+    SNAPCHAT_CLIENT_ID: string;
+    SNAPCHAT_CLIENT_SECRET: string;
   }
 }

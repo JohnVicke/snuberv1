@@ -2,11 +2,13 @@ import { LocationAccuracy, watchPositionAsync } from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, View } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import { BottomBar } from '../components/BottomBar';
+import { CustomMarker } from '../components/CustomMarker';
 import { EmergencyMenu } from '../components/EmergencyMenu';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { AddUserMarker } from '../redux/actions/markerActions';
 import { MarkerState } from '../redux/reducers/markerReducer';
 import { UserState } from '../redux/reducers/userReducers';
 import { RootState } from '../redux/store';
@@ -31,6 +33,7 @@ export const MapScreen: React.FC = ({}) => {
   const [location, setLocation] = useState<Region | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [emergencyMenuOpen, setEmergencyMenuOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const darkTheme = useSelector<RootState, UserState['darkTheme']>(
     (state: RootState) => state.user.darkTheme
@@ -69,11 +72,31 @@ export const MapScreen: React.FC = ({}) => {
       <View>
         <LoadingSpinner
           visible={!location || !!error}
-          text="Hämtar din plats åt bill gates"
+          text="Hämtar din plats åt Bill Gates"
         />
       </View>
     );
   }
+
+  const addUserMarkerCallback = (
+    description: string,
+    title: string,
+    id: string = 'hello'
+  ) => {
+    const marker: SnuberMarker = {
+      description,
+      id,
+      latlng: { latitude: location.latitude, longitude: location.longitude },
+      title
+    };
+
+    const action: AddUserMarker = {
+      type: 'ADD_USER_MARKER',
+      payload: marker
+    };
+
+    dispatch(action);
+  };
 
   return (
     <RootFlex>
@@ -84,25 +107,17 @@ export const MapScreen: React.FC = ({}) => {
       >
         {friendMarkers &&
           friendMarkers.map((marker: SnuberMarker, index: number) => {
-            <Marker
-              key={index}
-              coordinate={marker.latlng}
-              title={marker.title}
-              description={marker.description}
-            />;
+            <CustomMarker key={index} marker={marker} />;
           })}
 
-        {userMarker && (
-          <Marker
-            key={1000}
-            coordinate={userMarker.latlng}
-            title={userMarker.title}
-            description={userMarker.description}
-          />
-        )}
+        {userMarker && <CustomMarker key={1000} marker={userMarker} />}
       </Map>
       {emergencyMenuOpen && (
-        <EmergencyMenu open={emergencyMenuOpen} close={closeEmergencyMenu} />
+        <EmergencyMenu
+          open={emergencyMenuOpen}
+          close={closeEmergencyMenu}
+          addUserMarker={addUserMarkerCallback}
+        />
       )}
       <BottomBar openEmergencyMenu={openEmergencyMenu} />
     </RootFlex>

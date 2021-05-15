@@ -32,6 +32,12 @@ const MenuContainer = styled.ScrollView`
   padding: 20px;
 `;
 
+const HeaderContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
 const ButtonContainer = styled.View`
   margin-bottom: ${marginBottom};
 `;
@@ -89,9 +95,13 @@ const ImagePickerText = styled.Text`
 interface EmergencyMenuProps {
   open: boolean;
   close(): void;
+  addUserMarker(description: string, title: string, id: string): void;
 }
 
-export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({ close }) => {
+export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({
+  close,
+  addUserMarker
+}) => {
   const [reason, setReason] = useState('');
   const [image, setImage] = useState<string | undefined>(undefined);
   const onChangeReason = (text: string) => setReason(text);
@@ -109,9 +119,17 @@ export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({ close }) => {
     }
   };
 
+  const onSend = () => {
+    addUserMarker(reason, 'nödanrop', 'asdasd');
+    close();
+  };
+
   return (
     <MenuContainer>
-      <Heading>Nödanrop!</Heading>
+      <HeaderContainer>
+        <Heading>Nödanrop!</Heading>
+        <Icon name="x" size={24} color={Colors.white} onPress={close} />
+      </HeaderContainer>
       <TextInput
         placeholderTextColor={'rgba(255,255,255,0.2)'}
         onChangeText={onChangeReason}
@@ -129,7 +147,7 @@ export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({ close }) => {
         <PickedImage source={{ uri: image }} />
       )}
       <ButtonContainer>
-        <Button onPress={close}>Skicka</Button>
+        <Button onPress={onSend}>Skicka</Button>
       </ButtonContainer>
     </MenuContainer>
   );
