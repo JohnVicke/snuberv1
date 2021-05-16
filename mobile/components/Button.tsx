@@ -9,9 +9,11 @@ interface ButtonProps {
   onPress(): void;
   disabled?: boolean;
   align?: 'left' | 'right';
+  mt?: number;
+  mb?: number;
 }
 
-type ButtonTextProps = Pick<ButtonProps, 'outlined'>;
+type ButtonTextProps = Pick<ButtonProps, 'outlined' | 'mt' | 'mb'>;
 
 // TODO: implement disabled
 
@@ -29,6 +31,8 @@ const StyledTouchableOpacity = styled.TouchableOpacity<ButtonProps>`
   align-items: center;
   margin-left: ${(props) => (props.align === 'right' ? 'auto' : 0)};
   margin-right: ${(props) => (props.align === 'left' ? 'auto' : 0)};
+  margin-top: ${(props) => (props.mt ? props.mt : 0)}px;
+  margin-bottom: ${(props) => (props.mb ? props.mb : 0)}px;
 `;
 
 const ButtonText = styled.Text<ButtonTextProps>`
@@ -43,7 +47,9 @@ export const Button: React.FC<ButtonProps> = ({
   onPress,
   outlined,
   children,
-  align
+  align,
+  mt,
+  mb
 }) => {
   const onDisabled = () => {};
   return (
@@ -52,6 +58,8 @@ export const Button: React.FC<ButtonProps> = ({
       outlined={outlined}
       activeOpacity={disabled ? 1 : 0.8}
       onPress={disabled ? onDisabled : onPress}
+      mt={mt}
+      mb={mb}
     >
       <ButtonText outlined={outlined}>{children}</ButtonText>
     </StyledTouchableOpacity>

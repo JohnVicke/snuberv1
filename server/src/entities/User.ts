@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { Marker } from './Marker';
 import { Post } from './Post';
 import { Updoot } from './Updoot';
 
@@ -34,6 +35,10 @@ export class User extends BaseEntity {
   @Field()
   @Column()
   password!: string;
+
+  @Field(() => [Marker])
+  @OneToMany(() => Marker, (marker) => marker.creator)
+  markers: Marker[];
 
   @Field(() => [Post])
   @OneToMany(() => Post, (post) => post.creator)

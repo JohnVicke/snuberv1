@@ -3,33 +3,37 @@ import 'dotenv-safe/config';
 import { createConnection } from 'typeorm';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
-import express, { Request, Response } from 'express';
+import express from 'express';
 import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
+import path from 'path';
+import passport from 'passport';
+import { SnapchatProfile } from 'passport-snapchat/lib/src/profile';
+const SnapchatStrategy = require('passport-snapchat').Strategy;
 
 import { __prod__, PORT, REDIS_SECRET, COOKIE_NAME } from './constants';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
+import { MarkerResolver } from './resolvers/marker';
 import { SnuberContext } from './types';
-import { User } from './entities/User';
-import { Post } from './entities/Post';
-import path from 'path';
-import { Updoot } from './entities/Updoot';
 import { createUserLoader } from './utils/createUserLoader';
 import { createUpdootLoader } from './utils/createUpdootLoader';
-import passport from 'passport';
-import { SnapchatProfile } from 'passport-snapchat/lib/src/profile';
-const SnapchatStrategy = require('passport-snapchat').Strategy;
+import { User } from './entities/User';
+import { Post } from './entities/Post';
+import { Marker } from './entities/Marker';
+import { Updoot } from './entities/Updoot';
+import { Friends } from './entities/Friends';
+import { FriendsResolver } from './resolvers/friends';
 
 (async () => {
   await createConnection({
     type: 'postgres',
     url: process.env.DATABASE_URL,
     logging: true,
-    // synchronize: true,
-    entities: [User, Post, Updoot],
+    synchronize: true,
+    entities: [User, Post, Updoot, Marker, Friends],
     migrations: [path.join(__dirname, './migrations/*')]
   });
 
@@ -118,7 +122,7 @@ const SnapchatStrategy = require('passport-snapchat').Strategy;
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, PostResolver],
+      resolvers: [MarkerResolver, UserResolver, PostResolver, FriendsResolver],
       validate: false
     }),
 

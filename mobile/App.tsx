@@ -17,21 +17,61 @@ import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
+import {
+  ApolloClient,
+  ApolloProvider,
+  createHttpLink,
+  InMemoryCache
+} from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persistCache } from 'apollo3-cache-persist';
+
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthenticationSwitch } from './navigation/AuthenticationSwitch';
 import { navigationRef } from './navigation/RootNavigation';
 import { store } from './redux/store';
 import { Colors } from './utils/styles/colors';
 
+const cache = new InMemoryCache();
+const uri = 'http://192.168.1.215:42069/graphql';
+
+const httpLink = createHttpLink({
+  uri
+});
+
+const authLink = setContext((_, { headers }) => {
+  const token = AsyncStorage.getItem('token');
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : ''
+    }
+  };
+});
+
+const apolloClient = new ApolloClient({
+  link: authLink.concat(httpLink),
+  credentials: 'include',
+  cache
+});
+
 export default function App() {
   const [error, setError] = useState<string | null>(null);
-  const [darkTheme, setDarkTheme] = useState(true);
+  const [loadingCache, setLoadingCache] = useState(true);
 
   const [pacificoLoaded] = usePacifico({ Pacifico_400Regular });
   const [poppinsLoaded] = usePoppins({
     Poppins_400Regular,
     Poppins_700Bold
   });
+
+  useEffect(() => {
+    persistCache({
+      cache,
+      storage: AsyncStorage
+    }).then(() => setLoadingCache(false));
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -54,7 +94,7 @@ export default function App() {
     })();
   }, []);
 
-  if (!pacificoLoaded || !poppinsLoaded) {
+  if (!pacificoLoaded || !poppinsLoaded || loadingCache) {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="light-content" backgroundColor={Colors.darkBlue} />
@@ -66,16 +106,18 @@ export default function App() {
     );
   }
   return (
-    <Provider store={store}>
-      <SafeAreaProvider>
-        <NavigationContainer ref={navigationRef}>
-          <StatusBar
-            barStyle="light-content"
-            backgroundColor={Colors.darkBlue}
-          />
-          <AuthenticationSwitch />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </Provider>
+    <ApolloProvider client={apolloClient}>
+      <Provider store={store}>
+        <SafeAreaProvider>
+          <NavigationContainer ref={navigationRef}>
+            <StatusBar
+              barStyle="light-content"
+              backgroundColor={Colors.darkBlue}
+            />
+            <AuthenticationSwitch />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </Provider>
+    </ApolloProvider>
   );
 }
