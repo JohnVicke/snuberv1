@@ -1,0 +1,11 @@
+query Markers {
+  markers {
+    latLng {
+      latitude
+      longitude
+    }
+    title
+    updatedAt
+    creatorId
+  }
+}

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Marker } from 'react-native-maps';
 import styled from 'styled-components/native';
-import DosaPNG from '../assets/dosa.png';
-import { SnuberMarker } from '../utils/types/Snuber';
 
-const MARKER_WIDTH = 30;
-const MARKER_HEIGHT = 30;
+import { SnuberMarker } from '../generated/graphql';
+import DosaPNG from '../assets/dosa.png';
+
+const MARKER_WIDTH = 24;
+const MARKER_HEIGHT = 24;
 
 const Dosa = styled.Image`
   height: ${MARKER_HEIGHT}px;
@@ -36,12 +37,12 @@ interface SnuberMarkerProps {
 }
 
 export const CustomMarker: React.FC<SnuberMarkerProps> = ({
-  marker: { latlng, id }
+  marker: { latLng, id }
 }) => {
   return (
     <Marker
       key={id}
-      coordinate={latlng}
+      coordinate={latLng}
       anchor={anchor}
       centerOffset={centerOffset}
     >

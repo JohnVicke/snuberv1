@@ -1,26 +1,18 @@
-import { SnuberMarker } from '../../utils/types/Snuber';
+import { SnuberMarker } from '../../generated/graphql';
 
-export interface AddUserMarker {
-  readonly type: 'ADD_USER_MARKER';
-  payload: SnuberMarker;
+export interface AddMarker {
+  readonly type: 'ADD_MARKER';
+  payload: Pick<SnuberMarker, 'latLng' | 'title'>;
 }
 
-export interface RemoveUserMarker {
-  readonly type: 'REMOVE_USER_MARKER';
+export interface RemoveMarker {
+  readonly type: 'REMOVE_MARKER';
+  payload: number;
 }
 
-export interface AddFriendMarker {
-  readonly type: 'ADD_FRIEND_MARKER';
-  payload: SnuberMarker;
+export interface PopulateMarkersFromStore {
+  readonly type: 'POPULATE_MARKERS_FROM_STORE';
+  payload: SnuberMarker[];
 }
 
-export interface RemoveFriendMarker {
-  readonly type: 'REMOVE_FRIEND_MARKER';
-  payload: string;
-}
-
-export type MarkerActions =
-  | AddFriendMarker
-  | RemoveFriendMarker
-  | AddUserMarker
-  | RemoveUserMarker;
+export type MarkerActions = AddMarker | RemoveMarker | PopulateMarkersFromStore;

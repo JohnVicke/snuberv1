@@ -36,6 +36,33 @@ class MarkerError {
 }
 
 @ObjectType()
+class LatLng {
+  @Field(() => Float)
+  latitude: number;
+
+  @Field(() => Float)
+  longitude: number;
+}
+
+@ObjectType()
+class SnuberMarker {
+  @Field()
+  id: number;
+
+  @Field()
+  creatorId: number;
+
+  @Field()
+  title: string;
+
+  @Field(() => LatLng)
+  latLng: LatLng;
+
+  @Field(() => Date)
+  updatedAt: Date;
+}
+
+@ObjectType()
 class MarkerResponse {
   @Field(() => Marker, { nullable: true })
   marker?: Marker;
@@ -55,13 +82,12 @@ export class MarkerResolver {
     const userHasMarker = await Marker.findOne({
       creatorId: req.session.userId
     });
-    console.log('user has marker', userHasMarker);
     if (userHasMarker) {
       return {
         errors: [
           {
             type: 'already_exists',
-            message: 'Du har redan ett nödanrop uppe!'
+            message: 'Du har redan ett nödanrop uppe idiot!'
           }
         ]
       };
@@ -75,9 +101,23 @@ export class MarkerResolver {
     return { marker };
   }
 
-  @Query(() => [Marker])
+  @Query(() => [SnuberMarker])
   @UseMiddleware(isAuth)
-  markers(): Promise<Marker[]> {
-    return Marker.find();
+  async markers(): Promise<SnuberMarker[]> {
+    const markers = await Marker.find();
+    const snuberMarkers = markers.map((marker: Marker): SnuberMarker => {
+      const { id, creatorId, title, updatedAt, latitude, longitude } = marker;
+      return {
+        id,
+        creatorId,
+        title,
+        updatedAt,
+        latLng: {
+          latitude,
+          longitude
+        }
+      };
+    });
+    return snuberMarkers;
   }
 }

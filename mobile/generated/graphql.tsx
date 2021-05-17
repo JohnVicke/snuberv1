@@ -12,12 +12,69 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
+  DateTime: any;
 };
+
 
 export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
   message: Scalars['String'];
+};
+
+export type Friend = {
+  __typename?: 'Friend';
+  displayName: Scalars['String'];
+  id: Scalars['Float'];
+};
+
+export type Friends = {
+  __typename?: 'Friends';
+  id: Scalars['Float'];
+  toUser: User;
+  fromUser: User;
+  fromUserId: Scalars['Float'];
+  toUserId: Scalars['Float'];
+  status: Status;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
+export type LatLng = {
+  __typename?: 'LatLng';
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+};
+
+export type Marker = {
+  __typename?: 'Marker';
+  id: Scalars['Float'];
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  title: Scalars['String'];
+  creatorId: Scalars['Float'];
+  creator: User;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
+export type MarkerError = {
+  __typename?: 'MarkerError';
+  type: Scalars['String'];
+  message: Scalars['String'];
+};
+
+export type MarkerInput = {
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  title: Scalars['String'];
+};
+
+export type MarkerResponse = {
+  __typename?: 'MarkerResponse';
+  marker?: Maybe<Marker>;
+  errors?: Maybe<Array<MarkerError>>;
 };
 
 export type Mutation = {
@@ -31,6 +88,9 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  createMarker: MarkerResponse;
+  sendFriendRequest: Scalars['Boolean'];
+  answerFriendRequest: Scalars['Boolean'];
 };
 
 
@@ -77,6 +137,22 @@ export type MutationLoginArgs = {
   usernameOrEmail: Scalars['String'];
 };
 
+
+export type MutationCreateMarkerArgs = {
+  options: MarkerInput;
+};
+
+
+export type MutationSendFriendRequestArgs = {
+  username: Scalars['String'];
+};
+
+
+export type MutationAnswerFriendRequestArgs = {
+  friendsId: Scalars['Float'];
+  answer: Scalars['Boolean'];
+};
+
 export type PaginatedPosts = {
   __typename?: 'PaginatedPosts';
   posts: Array<Post>;
@@ -107,6 +183,9 @@ export type Query = {
   posts: PaginatedPosts;
   post?: Maybe<Post>;
   me?: Maybe<User>;
+  markers: Array<SnuberMarker>;
+  incomingFriendRequests: Array<Friends>;
+  friends: Array<Friend>;
 };
 
 
@@ -120,6 +199,15 @@ export type QueryPostArgs = {
   id: Scalars['Int'];
 };
 
+export type SnuberMarker = {
+  __typename?: 'SnuberMarker';
+  id: Scalars['Float'];
+  creatorId: Scalars['Float'];
+  title: Scalars['String'];
+  latLng: LatLng;
+  updatedAt: Scalars['DateTime'];
+};
+
 export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
@@ -127,6 +215,7 @@ export type User = {
   displayName: Scalars['String'];
   email: Scalars['String'];
   password: Scalars['String'];
+  markers: Array<Marker>;
   posts: Array<Post>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
@@ -144,6 +233,11 @@ export type UserResponse = {
   errors?: Maybe<Array<FieldError>>;
   user?: Maybe<User>;
 };
+
+export enum Status {
+  Pending = 'PENDING',
+  Accepted = 'ACCEPTED'
+}
 
 export type RegularErrorFragment = (
   { __typename?: 'FieldError' }
@@ -186,6 +280,21 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 export type LogoutMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'logout'>
+);
+
+export type MarkersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarkersQuery = (
+  { __typename?: 'Query' }
+  & { markers: Array<(
+    { __typename?: 'SnuberMarker' }
+    & Pick<SnuberMarker, 'title' | 'updatedAt' | 'creatorId'>
+    & { latLng: (
+      { __typename?: 'LatLng' }
+      & Pick<LatLng, 'latitude' | 'longitude'>
+    ) }
+  )> }
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -286,6 +395,46 @@ export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<Logou
 export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
 export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
+export const MarkersDocument = gql`
+    query Markers {
+  markers {
+    latLng {
+      latitude
+      longitude
+    }
+    title
+    updatedAt
+    creatorId
+  }
+}
+    `;
+
+/**
+ * __useMarkersQuery__
+ *
+ * To run a query within a React component, call `useMarkersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMarkersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMarkersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMarkersQuery(baseOptions?: Apollo.QueryHookOptions<MarkersQuery, MarkersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MarkersQuery, MarkersQueryVariables>(MarkersDocument, options);
+      }
+export function useMarkersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MarkersQuery, MarkersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MarkersQuery, MarkersQueryVariables>(MarkersDocument, options);
+        }
+export type MarkersQueryHookResult = ReturnType<typeof useMarkersQuery>;
+export type MarkersLazyQueryHookResult = ReturnType<typeof useMarkersLazyQuery>;
+export type MarkersQueryResult = Apollo.QueryResult<MarkersQuery, MarkersQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

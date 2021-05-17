@@ -1,15 +1,13 @@
 import { Reducer } from 'redux';
-import { SnuberMarker } from '../../utils/types/Snuber';
+import { SnuberMarker } from '../../generated/graphql';
 import { MarkerActions } from '../actions/markerActions';
 
 export type MarkerState = {
-  friendMarkers: SnuberMarker[];
-  userMarker: SnuberMarker | undefined;
+  markers: SnuberMarker[];
 };
 
 const initialState: MarkerState = {
-  friendMarkers: [],
-  userMarker: undefined
+  markers: []
 };
 
 export const markerReducer: Reducer<MarkerState, MarkerActions> = (
@@ -17,27 +15,21 @@ export const markerReducer: Reducer<MarkerState, MarkerActions> = (
   action: MarkerActions
 ) => {
   switch (action.type) {
-    case 'ADD_FRIEND_MARKER':
+    case 'ADD_MARKER':
       return {
-        ...state,
-        friendMarkers: [...state.friendMarkers, action.payload]
+        ...state
       };
-    case 'REMOVE_FRIEND_MARKER':
+    case 'REMOVE_MARKER':
       return {
         ...state,
-        friendMarkers: state.friendMarkers.filter(
+        markers: state.markers.filter(
           (m: SnuberMarker) => m.id !== action.payload
         )
       };
-    case 'ADD_USER_MARKER':
+    case 'POPULATE_MARKERS_FROM_STORE':
       return {
         ...state,
-        userMarker: action.payload
-      };
-    case 'REMOVE_USER_MARKER':
-      return {
-        ...state,
-        userMarker: undefined
+        markers: action.payload
       };
     default:
       neverReached(action);

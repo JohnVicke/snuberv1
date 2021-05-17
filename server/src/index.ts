@@ -9,9 +9,6 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import path from 'path';
-import passport from 'passport';
-import { SnapchatProfile } from 'passport-snapchat/lib/src/profile';
-const SnapchatStrategy = require('passport-snapchat').Strategy;
 
 import { __prod__, PORT, REDIS_SECRET, COOKIE_NAME } from './constants';
 import { PostResolver } from './resolvers/post';
@@ -32,45 +29,10 @@ import { FriendsResolver } from './resolvers/friends';
     type: 'postgres',
     url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
+    synchronize: false,
     entities: [User, Post, Updoot, Marker, Friends],
     migrations: [path.join(__dirname, './migrations/*')]
   });
-
-  passport.use(
-    new SnapchatStrategy(
-      {
-        clientID: process.env.SNAPCHAT_CLIENT_ID,
-        clientSecret: process.env.SNAPCHAT_CLIENT_SECRET,
-        callbackURL: 'http://localhost:42069/login/snapchat/callback',
-        profileFields: ['id', 'displayName', 'bitmoji'],
-        scope: ['user.display_name', 'user.bitmoji.avatar'],
-        pkce: true,
-        state: true
-      },
-      (
-        accessToken: string,
-        refreshToken: string,
-        profile: SnapchatProfile,
-        cb: any
-      ) => {
-        // In this example, the user's Snapchat profile is supplied as the user
-        // record.  In a production-quality application, the Snapchat profile should
-        // be associated with a user record in the application's database, which
-        // allows for account linking and authorization with other identity
-        // providers.
-        return cb(null, profile);
-      }
-    )
-  );
-  passport.serializeUser(function (user, cb) {
-    cb(null, user);
-  });
-
-  passport.deserializeUser(function (obj: any, cb) {
-    cb(null, obj);
-  });
-
   //await connection.runMigrations();
   //await Post.delete({});
 
@@ -106,20 +68,6 @@ import { FriendsResolver } from './resolvers/friends';
       resave: false
     })
   );
-
-  app.use(passport.initialize());
-  app.use(passport.session());
-
-  app.get('/login/snapchat', passport.authenticate('snapchat'));
-
-  app.get(
-    '/login/snapchat/callback',
-    passport.authenticate('snapchat', { failureRedirect: '/login' }),
-    function (req, res) {
-      res.redirect('/');
-    }
-  );
-
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [MarkerResolver, UserResolver, PostResolver, FriendsResolver],

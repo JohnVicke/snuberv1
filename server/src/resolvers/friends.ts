@@ -5,13 +5,24 @@ import { SnuberContext } from 'src/types';
 import {
   Arg,
   Ctx,
+  Field,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   UseMiddleware
 } from 'type-graphql';
 import { Status } from '../entities/Friends';
 import { getConnection } from 'typeorm';
+
+@ObjectType()
+class Friend {
+  @Field()
+  displayName: string;
+
+  @Field()
+  id: number;
+}
 
 @Resolver(Friends)
 export class FriendsResolver {
@@ -54,21 +65,24 @@ export class FriendsResolver {
   async incomingFriendRequests(
     @Ctx() { req }: SnuberContext
   ): Promise<Friends[]> {
-    return Friends.find({ toUserId: req.session.userId });
+    return Friends.find({
+      toUserId: req.session.userId,
+      status: Status.PENDING
+    });
   }
 
-  @Query(() => [User])
+  @Query(() => [Friend])
   @UseMiddleware(isAuth)
-  async friends(@Ctx() { req }: SnuberContext): Promise<User> {
-    const replacements: any[] = [req.session.userId];
+  async friends(@Ctx() { req }: SnuberContext): Promise<Friend> {
+    const replacements: any[] = [req.session.userId, Status.ACCEPTED];
     const friends = await getConnection().query(
       `
-      select * from "user" where id in 
+      select "displayName", "id" from "user" where id in 
 	      (select case when "toUserId" = $1 	
 		      then "fromUserId" 
 		      else "toUserId"
 		      end as "friendId"
-	      from friends)
+	      from friends where status = $2)
       `,
       replacements
     );
