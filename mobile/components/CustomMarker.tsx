@@ -37,15 +37,10 @@ interface SnuberMarkerProps {
 }
 
 export const CustomMarker: React.FC<SnuberMarkerProps> = ({
-  marker: { latLng, id }
+  marker: { latLng }
 }) => {
   return (
-    <Marker
-      key={id}
-      coordinate={latLng}
-      anchor={anchor}
-      centerOffset={centerOffset}
-    >
+    <Marker coordinate={latLng} anchor={anchor} centerOffset={centerOffset}>
       <Dosa source={DosaPNG} />
     </Marker>
   );

@@ -1,23 +1,13 @@
-import {
-  ImagePickerResult,
-  launchCameraAsync,
-  launchImageLibraryAsync,
-  MediaTypeOptions
-} from 'expo-image-picker';
+import { launchCameraAsync, MediaTypeOptions } from 'expo-image-picker';
 import React, { useState } from 'react';
-import {
-  Dimensions,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Text
-} from 'react-native';
+import { Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import styled from 'styled-components/native';
 
 import { Colors } from '../utils/styles/colors';
 import { Fonts } from '../utils/styles/fonts';
 import { Button } from './Button';
+import { Modal } from './Modal';
 
 const marginBottom = '10px';
 
@@ -95,7 +85,7 @@ const ImagePickerText = styled.Text`
 interface EmergencyMenuProps {
   open: boolean;
   close(): void;
-  addUserMarker(description: string, title: string, id: string): void;
+  addUserMarker(description: string): void;
 }
 
 export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({
@@ -120,16 +110,17 @@ export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({
   };
 
   const onSend = () => {
-    addUserMarker(reason, 'nödanrop', 'asdasd');
+    addUserMarker(reason);
     close();
   };
 
   return (
-    <MenuContainer>
-      <HeaderContainer>
-        <Heading>Nödanrop!</Heading>
-        <Icon name="x" size={24} color={Colors.white} onPress={close} />
-      </HeaderContainer>
+    <Modal
+      title="Nödanrop!"
+      primaryAction={onSend}
+      primaryTitle="Skicka"
+      close={close}
+    >
       <TextInput
         placeholderTextColor={'rgba(255,255,255,0.2)'}
         onChangeText={onChangeReason}
@@ -146,9 +137,6 @@ export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({
       ) : (
         <PickedImage source={{ uri: image }} />
       )}
-      <ButtonContainer>
-        <Button onPress={onSend}>Skicka</Button>
-      </ButtonContainer>
-    </MenuContainer>
+    </Modal>
   );
 };

@@ -89,6 +89,7 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   createMarker: MarkerResponse;
+  removeMarker: Scalars['Boolean'];
   sendFriendRequest: Scalars['Boolean'];
   answerFriendRequest: Scalars['Boolean'];
 };
@@ -260,6 +261,27 @@ export type RegularUserResponseFragment = (
   )> }
 );
 
+export type CreateMarkerMutationVariables = Exact<{
+  title: Scalars['String'];
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+}>;
+
+
+export type CreateMarkerMutation = (
+  { __typename?: 'Mutation' }
+  & { createMarker: (
+    { __typename?: 'MarkerResponse' }
+    & { marker?: Maybe<(
+      { __typename?: 'Marker' }
+      & Pick<Marker, 'latitude' | 'longitude' | 'id' | 'creatorId'>
+    )>, errors?: Maybe<Array<(
+      { __typename?: 'MarkerError' }
+      & Pick<MarkerError, 'type' | 'message'>
+    )>> }
+  ) }
+);
+
 export type LoginMutationVariables = Exact<{
   usernameOrEmail: Scalars['String'];
   password: Scalars['String'];
@@ -282,6 +304,14 @@ export type LogoutMutation = (
   & Pick<Mutation, 'logout'>
 );
 
+export type RemoveMarkerMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RemoveMarkerMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'removeMarker'>
+);
+
 export type MarkersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -289,7 +319,7 @@ export type MarkersQuery = (
   { __typename?: 'Query' }
   & { markers: Array<(
     { __typename?: 'SnuberMarker' }
-    & Pick<SnuberMarker, 'title' | 'updatedAt' | 'creatorId'>
+    & Pick<SnuberMarker, 'title' | 'updatedAt' | 'creatorId' | 'id'>
     & { latLng: (
       { __typename?: 'LatLng' }
       & Pick<LatLng, 'latitude' | 'longitude'>
@@ -331,6 +361,52 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const CreateMarkerDocument = gql`
+    mutation CreateMarker($title: String!, $latitude: Float!, $longitude: Float!) {
+  createMarker(
+    options: {title: $title, latitude: $latitude, longitude: $longitude}
+  ) {
+    marker {
+      latitude
+      longitude
+      id
+      creatorId
+    }
+    errors {
+      type
+      message
+    }
+  }
+}
+    `;
+export type CreateMarkerMutationFn = Apollo.MutationFunction<CreateMarkerMutation, CreateMarkerMutationVariables>;
+
+/**
+ * __useCreateMarkerMutation__
+ *
+ * To run a mutation, you first call `useCreateMarkerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMarkerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMarkerMutation, { data, loading, error }] = useCreateMarkerMutation({
+ *   variables: {
+ *      title: // value for 'title'
+ *      latitude: // value for 'latitude'
+ *      longitude: // value for 'longitude'
+ *   },
+ * });
+ */
+export function useCreateMarkerMutation(baseOptions?: Apollo.MutationHookOptions<CreateMarkerMutation, CreateMarkerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateMarkerMutation, CreateMarkerMutationVariables>(CreateMarkerDocument, options);
+      }
+export type CreateMarkerMutationHookResult = ReturnType<typeof useCreateMarkerMutation>;
+export type CreateMarkerMutationResult = Apollo.MutationResult<CreateMarkerMutation>;
+export type CreateMarkerMutationOptions = Apollo.BaseMutationOptions<CreateMarkerMutation, CreateMarkerMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($usernameOrEmail: String!, $password: String!) {
   login(usernameOrEmail: $usernameOrEmail, password: $password) {
@@ -395,6 +471,36 @@ export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<Logou
 export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
 export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
+export const RemoveMarkerDocument = gql`
+    mutation RemoveMarker {
+  removeMarker
+}
+    `;
+export type RemoveMarkerMutationFn = Apollo.MutationFunction<RemoveMarkerMutation, RemoveMarkerMutationVariables>;
+
+/**
+ * __useRemoveMarkerMutation__
+ *
+ * To run a mutation, you first call `useRemoveMarkerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveMarkerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeMarkerMutation, { data, loading, error }] = useRemoveMarkerMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useRemoveMarkerMutation(baseOptions?: Apollo.MutationHookOptions<RemoveMarkerMutation, RemoveMarkerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveMarkerMutation, RemoveMarkerMutationVariables>(RemoveMarkerDocument, options);
+      }
+export type RemoveMarkerMutationHookResult = ReturnType<typeof useRemoveMarkerMutation>;
+export type RemoveMarkerMutationResult = Apollo.MutationResult<RemoveMarkerMutation>;
+export type RemoveMarkerMutationOptions = Apollo.BaseMutationOptions<RemoveMarkerMutation, RemoveMarkerMutationVariables>;
 export const MarkersDocument = gql`
     query Markers {
   markers {
@@ -405,6 +511,7 @@ export const MarkersDocument = gql`
     title
     updatedAt
     creatorId
+    id
   }
 }
     `;

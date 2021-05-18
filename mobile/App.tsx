@@ -30,10 +30,18 @@ import { persistCache } from 'apollo3-cache-persist';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthenticationSwitch } from './navigation/AuthenticationSwitch';
 import { navigationRef } from './navigation/RootNavigation';
-import { store } from './redux/store';
 import { Colors } from './utils/styles/colors';
 
-const cache = new InMemoryCache();
+const cache = new InMemoryCache({
+  typePolicies: {
+    SnuberMarker: {
+      keyFields: ['id', 'creatorId', 'title'],
+      merge(existing, incoming) {
+        return [...existing, ...incoming];
+      }
+    }
+  }
+});
 const uri = 'http://192.168.1.215:42069/graphql';
 
 const httpLink = createHttpLink({
@@ -107,17 +115,15 @@ export default function App() {
   }
   return (
     <ApolloProvider client={apolloClient}>
-      <Provider store={store}>
-        <SafeAreaProvider>
-          <NavigationContainer ref={navigationRef}>
-            <StatusBar
-              barStyle="light-content"
-              backgroundColor={Colors.darkBlue}
-            />
-            <AuthenticationSwitch />
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </Provider>
+      <SafeAreaProvider>
+        <NavigationContainer ref={navigationRef}>
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor={Colors.darkBlue}
+          />
+          <AuthenticationSwitch />
+        </NavigationContainer>
+      </SafeAreaProvider>
     </ApolloProvider>
   );
 }

@@ -1,22 +1,23 @@
-import { LocationAccuracy, watchPositionAsync } from 'expo-location';
+import { gql } from '@apollo/client';
+import {
+  getLastKnownPositionAsync,
+  LocationAccuracy,
+  watchPositionAsync
+} from 'expo-location';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, View, Text } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
-import { useDispatch, useSelector } from 'react-redux';
+import { Dimensions, View } from 'react-native';
+import MapView, { Region } from 'react-native-maps';
 import styled from 'styled-components/native';
 import { BottomBar } from '../components/BottomBar';
 import { CustomMarker } from '../components/CustomMarker';
 import { EmergencyMenu } from '../components/EmergencyMenu';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { SnuberMarker, useMarkersQuery } from '../generated/graphql';
 import {
-  AddMarker,
-  PopulateMarkersFromStore
-} from '../redux/actions/markerActions';
-import { MarkerState } from '../redux/reducers/markerReducer';
-import { UserState } from '../redux/reducers/userReducers';
-import { RootState } from '../redux/store';
-import DayMap from '../utils/styles/customMapStyleDay.json';
+  MarkersQuery,
+  SnuberMarker,
+  useCreateMarkerMutation,
+  useMarkersQuery
+} from '../generated/graphql';
 import NightMap from '../utils/styles/customMapStyleNight.json';
 
 const Map = styled(MapView)`
@@ -32,21 +33,45 @@ const RootFlex = styled.View`
 
 const DELTA = 0.003;
 
+const GET_ALL_MARKERS = gql`
+  query Markers {
+    markers {
+      latLng {
+        latitude
+        longitude
+      }
+      title
+      updatedAt
+      creatorId
+      id
+    }
+  }
+`;
+
 export const MapScreen: React.FC = ({}) => {
   const [location, setLocation] = useState<Region | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const { data: markersData, loading } = useMarkersQuery({
+    fetchPolicy: 'network-only'
+  });
+  const [addMarker] = useCreateMarkerMutation({
+    update(cache, { data }) {
+      const newMarkerFromRes = data?.createMarker.marker;
+      const existingMarkers = cache.readQuery<MarkersQuery>({
+        query: GET_ALL_MARKERS
+      });
+
+      if (existingMarkers && newMarkerFromRes) {
+        cache.writeQuery({
+          query: GET_ALL_MARKERS,
+          data: {
+            markers: [...existingMarkers.markers, newMarkerFromRes]
+          }
+        });
+      }
+    }
+  });
   const [emergencyMenuOpen, setEmergencyMenuOpen] = useState(false);
-  const { data, loading } = useMarkersQuery();
-
-  const dispatch = useDispatch();
-
-  const darkTheme = useSelector<RootState, UserState['darkTheme']>(
-    (state: RootState) => state.user.darkTheme
-  );
-
-  const { markers } = useSelector<RootState, MarkerState>(
-    (state: RootState) => state.markers
-  );
 
   const openEmergencyMenu = () => {
     setEmergencyMenuOpen(!emergencyMenuOpen);
@@ -72,17 +97,7 @@ export const MapScreen: React.FC = ({}) => {
     })();
   }, []);
 
-  useEffect(() => {
-    if (!!data?.markers) {
-      const action: PopulateMarkersFromStore = {
-        type: 'POPULATE_MARKERS_FROM_STORE',
-        payload: data.markers as SnuberMarker[]
-      };
-      dispatch(action);
-    }
-  }, [!!data?.markers]);
-
-  if (!location || error) {
+  if (!location || error || !markersData?.markers) {
     return (
       <View>
         <LoadingSpinner
@@ -93,26 +108,22 @@ export const MapScreen: React.FC = ({}) => {
     );
   }
 
-  const addUserMarkerCallback = (title: string) => {
+  const addUserMarkerCallback = async (title: string) => {
     const marker = {
-      latLng: { latitude: location.latitude, longitude: location.longitude },
+      latitude: location.latitude,
+      longitude: location.longitude,
       title
     };
-    const action: AddMarker = {
-      type: 'ADD_MARKER',
-      payload: marker
-    };
-    dispatch(action);
+    // Merge cache instead of refetching!!
+    const res = await addMarker({
+      variables: marker
+    });
   };
 
   return (
     <RootFlex>
-      <Map
-        initialRegion={location}
-        customMapStyle={darkTheme ? NightMap : DayMap}
-        showsUserLocation
-      >
-        {markers.map((marker: SnuberMarker) => (
+      <Map initialRegion={location} customMapStyle={NightMap} showsUserLocation>
+        {markersData.markers.map((marker: SnuberMarker) => (
           <CustomMarker key={marker.id} marker={marker} />
         ))}
       </Map>

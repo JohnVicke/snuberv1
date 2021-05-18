@@ -1,0 +1,16 @@
+mutation CreateMarker($title: String!, $latitude: Float!, $longitude: Float!) {
+  createMarker(
+    options: { title: $title, latitude: $latitude, longitude: $longitude }
+  ) {
+    marker {
+      latitude
+      longitude
+      id
+      creatorId
+    }
+    errors {
+      type
+      message
+    }
+  }
+}

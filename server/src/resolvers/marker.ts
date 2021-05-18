@@ -120,4 +120,11 @@ export class MarkerResolver {
     });
     return snuberMarkers;
   }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async removeMarker(@Ctx() { req }: SnuberContext): Promise<boolean> {
+    await Marker.delete({ creatorId: req.session.userId });
+    return true;
+  }
 }
