@@ -5,8 +5,14 @@ import { Button } from '../components/Button';
 import { useLoginMutation } from '../generated/graphql';
 import { Colors } from '../utils/styles/colors';
 import { Formik } from 'formik';
-import { Text, View } from 'react-native';
-import { TextField } from '../components/TextInput';
+import { View } from 'react-native';
+import { space } from '../utils/styles/space';
+import { TextField } from '../components/TextField';
+
+// TODO: FIX THIS SHIT
+const ThisIsNotVeryGood = styled.View`
+  ${space}
+`;
 
 const LoginContainer = styled.View`
   flex: 1;
@@ -31,6 +37,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({}) => {
     });
     await apolloClient.resetStore();
   };
+
   return (
     <LoginContainer>
       <Formik
@@ -41,36 +48,33 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({}) => {
           }
           const res = await login({ variables: { ...values } });
           if (res.data?.login.errors) {
-            console.log(res.data.login.errors);
           } else if (res.data?.login.user) {
-            console.log('managed to login');
+            await apolloClient.resetStore();
           }
         }}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          setFieldValue
-        }) => (
+        {({ handleBlur, handleSubmit, values, setFieldValue }) => (
           <View>
-            <TextField
-              label="Användarnamn"
-              field="usernameOrEmail"
-              value={values['usernameOrEmail']}
-              setValue={setFieldValue}
-              onBlur={handleBlur('usernameOrEmail')}
-            />
-            <TextField
-              label="Lösenord"
-              field="password"
-              secureTextEntry
-              setValue={setFieldValue}
-              onBlur={handleBlur('password')}
-              value={values['password']}
-            />
-            <Button onPress={handleSubmit}>Submit</Button>
+            <ThisIsNotVeryGood marginBottom="10px">
+              <TextField
+                label="Användarnamn"
+                field="usernameOrEmail"
+                value={values['usernameOrEmail']}
+                setValue={setFieldValue}
+                onBlur={handleBlur('usernameOrEmail')}
+              />
+            </ThisIsNotVeryGood>
+            <ThisIsNotVeryGood marginBottom="10px">
+              <TextField
+                label="Lösenord"
+                field="password"
+                secureTextEntry
+                setValue={setFieldValue}
+                onBlur={handleBlur('password')}
+                value={values['password']}
+              />
+            </ThisIsNotVeryGood>
+            <Button onPress={handleSubmit}>Logga in</Button>
           </View>
         )}
       </Formik>

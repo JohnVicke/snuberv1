@@ -1,23 +1,15 @@
-import { gql } from '@apollo/client';
-import {
-  getLastKnownPositionAsync,
-  LocationAccuracy,
-  watchPositionAsync
-} from 'expo-location';
+import { LocationAccuracy, watchPositionAsync } from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, View } from 'react-native';
 import MapView, { Region } from 'react-native-maps';
 import styled from 'styled-components/native';
+import { AddFriendModal } from '../components/AddFriendModal';
 import { BottomBar } from '../components/BottomBar';
 import { CustomMarker } from '../components/CustomMarker';
-import { EmergencyMenu } from '../components/EmergencyMenu';
+import { EmergancyModal } from '../components/EmergencyModal';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import {
-  MarkersQuery,
-  SnuberMarker,
-  useCreateMarkerMutation,
-  useMarkersQuery
-} from '../generated/graphql';
+import { ProfileButton } from '../components/ProfileButton';
+import { SnuberMarker, useMarkersQuery } from '../generated/graphql';
 import NightMap from '../utils/styles/customMapStyleNight.json';
 
 const Map = styled(MapView)`
@@ -33,21 +25,23 @@ const RootFlex = styled.View`
 
 const DELTA = 0.003;
 
+const MODALS = {
+  addFriend: {
+    open: false
+  },
+  emergency: {
+    open: false
+  }
+};
+
 export const MapScreen: React.FC = ({}) => {
   const [location, setLocation] = useState<Region | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const { data: markersData, loading } = useMarkersQuery({
     fetchPolicy: 'network-only'
   });
-  const [emergencyMenuOpen, setEmergencyMenuOpen] = useState(false);
 
-  const openEmergencyMenu = () => {
-    setEmergencyMenuOpen(!emergencyMenuOpen);
-  };
-
-  const closeEmergencyMenu = () => {
-    setEmergencyMenuOpen(false);
-  };
+  const [modalStatus, setModalStatus] = useState(MODALS);
 
   useEffect(() => {
     (async () => {
@@ -76,22 +70,45 @@ export const MapScreen: React.FC = ({}) => {
     );
   }
 
+  const closeModal = (key: string) => {
+    return () => setModalStatus({ ...modalStatus, [key]: { open: false } });
+  };
+
+  const openModal = (key: string) => {
+    return () => setModalStatus({ ...modalStatus, [key]: { open: true } });
+  };
+
   return (
     <RootFlex>
-      <Map initialRegion={location} customMapStyle={NightMap} showsUserLocation>
+      <Map
+        initialRegion={location}
+        customMapStyle={NightMap}
+        showsUserLocation
+        showsCompass={false}
+        showsMyLocationButton={false}
+        followsUserLocation
+      >
         {markersData.markers.map((marker: SnuberMarker) => (
           <CustomMarker key={marker.id} marker={marker} />
         ))}
       </Map>
-      {emergencyMenuOpen && (
-        <EmergencyMenu
+      <ProfileButton />
+      {modalStatus.emergency.open && (
+        <EmergancyModal
           latitude={location.latitude}
           longitude={location.longitude}
-          open={emergencyMenuOpen}
-          close={closeEmergencyMenu}
+          close={closeModal('emergency')}
         />
       )}
-      <BottomBar openEmergencyMenu={openEmergencyMenu} />
+
+      {modalStatus.addFriend.open && (
+        <AddFriendModal close={closeModal('addFriend')} />
+      )}
+
+      <BottomBar
+        openEmergencyModal={openModal('emergency')}
+        openAddFriendModal={openModal('addFriend')}
+      />
     </RootFlex>
   );
 };

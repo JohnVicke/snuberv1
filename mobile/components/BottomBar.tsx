@@ -2,10 +2,8 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 import { Colors } from '../utils/styles/colors';
 import styled from 'styled-components/native';
-import { Dimensions, SafeAreaView, TouchableOpacity } from 'react-native';
-import { useSelector } from 'react-redux';
+import { Dimensions, TouchableOpacity } from 'react-native';
 import { EmergencyBtn } from './EmergencyBtn';
-import { navigate } from '../navigation/RootNavigation';
 
 const RootContainer = styled.View`
   width: ${Dimensions.get('window').width}px;
@@ -27,18 +25,27 @@ const Icons = styled.View`
 `;
 
 interface BottomBarProps {
-  openEmergencyMenu(): void;
+  openEmergencyModal(): void;
+  openAddFriendModal(): void;
 }
 
-export const BottomBar: React.FC<BottomBarProps> = ({ openEmergencyMenu }) => {
+export const BottomBar: React.FC<BottomBarProps> = ({
+  openEmergencyModal,
+  openAddFriendModal
+}) => {
   return (
     <RootContainer>
       <Icons>
         <Icon name="message-circle" size={24} color={Colors.white} />
-        <TouchableOpacity onPress={openEmergencyMenu}>
+        <TouchableOpacity onPress={openEmergencyModal}>
           <EmergencyBtn />
         </TouchableOpacity>
-        <Icon name="user-plus" size={24} color={Colors.white} />
+        <Icon
+          onPress={openAddFriendModal}
+          name="user-plus"
+          size={24}
+          color={Colors.white}
+        />
       </Icons>
     </RootContainer>
   );

@@ -1,13 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  NativeSyntheticEvent,
-  Text,
-  TextInputFocusEventData,
-  TextInputProps,
-  View
-} from 'react-native';
+import React, { useRef, useState } from 'react';
+import { TextInputProps, View } from 'react-native';
 import styled from 'styled-components/native';
-import { useField } from 'formik';
 import { Colors } from '../utils/styles/colors';
 import { Fonts } from '../utils/styles/fonts';
 import { TextInput } from 'react-native-gesture-handler';
@@ -15,11 +8,10 @@ import { TextInput } from 'react-native-gesture-handler';
 const Input = styled.TextInput`
   letter-spacing: 1px;
   color: #fff;
-  min-height: 30px;
   width: 100%;
   background-color: ${Colors.darkBlue};
   border-radius: 10px;
-  padding: 10px;
+  padding: 20px 14px 10px 14px;
   font-family: ${Fonts.PoppinsRegular};
   line-height: 20px;
 `;
@@ -31,20 +23,16 @@ interface LabelProps {
 const Label = styled.Text<LabelProps>`
   position: absolute;
   left: 10px;
-  top: ${(props) => (!props.focused ? 10 : 0)}px;
+  top: ${(props) => (!props.focused ? '16px' : '2px')};
   font-size: ${(props) => (!props.focused ? 16 : 10)}px;
-  color: ${(props) => (!props.focused ? '#fff' : 'rgba(255,255,255,0.2)')};
+  color: ${(props) =>
+    !props.focused ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.7)'};
   z-index: 10;
 `;
 
-Input.defaultProps = {
-  placeholderTextColor: 'rgba(255,255,255,0.2)',
-  selectionColor: Colors.snuberRed
-};
-
 type CustomInputProps = TextInputProps & {
   label: string;
-  value: any;
+  value: string;
   field: string;
   secureTextEntry?: boolean;
   setValue: (
@@ -60,7 +48,6 @@ export const TextField: React.FC<CustomInputProps> = (
 ) => {
   const [focused, setFocused] = useState(false);
   const { style, onBlur, ...rest } = props;
-  const [customFocus, setCustomFocus] = useState(false);
   const inputRef =
     useRef<
       TextInput & {
@@ -85,7 +72,6 @@ export const TextField: React.FC<CustomInputProps> = (
       <Input
         {...rest}
         ref={inputRef}
-        autoFocus={customFocus}
         onBlur={() => setFocused(false)}
         onFocus={() => setFocused(true)}
         onChangeText={(e) => setValue(field, e)}

@@ -8,7 +8,7 @@ import { Formik } from 'formik';
 import { Colors } from '../utils/styles/colors';
 import { Fonts } from '../utils/styles/fonts';
 import { Modal } from './Modal';
-import { TextInput } from './TextInput';
+import { TextField } from './TextField';
 import { Button } from './Button';
 import { MarkersQuery, useCreateMarkerMutation } from '../generated/graphql';
 import { gql } from '@apollo/client';
@@ -60,14 +60,13 @@ const GET_ALL_MARKERS = gql`
   }
 `;
 
-interface EmergencyMenuProps {
-  open: boolean;
+interface EmergencyModalProps {
   close(): void;
   latitude: number;
   longitude: number;
 }
 
-export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({
+export const EmergancyModal: React.FC<EmergencyModalProps> = ({
   close,
   latitude,
   longitude
@@ -123,14 +122,20 @@ export const EmergencyMenu: React.FC<EmergencyMenuProps> = ({
           close();
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values }) => (
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          setFieldValue
+        }) => (
           <View>
-            <TextInput
+            <TextField
               label="Varför har du slut igen??"
-              onChangeText={handleChange('title')}
-              onBlur={handleBlur('title')}
-              value={values.title}
-              hasText={!!values.title}
+              field="title"
+              setValue={setFieldValue}
+              onBlur={handleBlur('password')}
+              value={values['title']}
             />
             {!image ? (
               <ImagePickingArea onPress={pickImage}>
