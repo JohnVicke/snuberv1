@@ -33,43 +33,11 @@ const RootFlex = styled.View`
 
 const DELTA = 0.003;
 
-const GET_ALL_MARKERS = gql`
-  query Markers {
-    markers {
-      latLng {
-        latitude
-        longitude
-      }
-      title
-      updatedAt
-      creatorId
-      id
-    }
-  }
-`;
-
 export const MapScreen: React.FC = ({}) => {
   const [location, setLocation] = useState<Region | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const { data: markersData, loading } = useMarkersQuery({
     fetchPolicy: 'network-only'
-  });
-  const [addMarker] = useCreateMarkerMutation({
-    update(cache, { data }) {
-      const newMarkerFromRes = data?.createMarker.marker;
-      const existingMarkers = cache.readQuery<MarkersQuery>({
-        query: GET_ALL_MARKERS
-      });
-
-      if (existingMarkers && newMarkerFromRes) {
-        cache.writeQuery({
-          query: GET_ALL_MARKERS,
-          data: {
-            markers: [...existingMarkers.markers, newMarkerFromRes]
-          }
-        });
-      }
-    }
   });
   const [emergencyMenuOpen, setEmergencyMenuOpen] = useState(false);
 
@@ -108,18 +76,6 @@ export const MapScreen: React.FC = ({}) => {
     );
   }
 
-  const addUserMarkerCallback = async (title: string) => {
-    const marker = {
-      latitude: location.latitude,
-      longitude: location.longitude,
-      title
-    };
-    // Merge cache instead of refetching!!
-    const res = await addMarker({
-      variables: marker
-    });
-  };
-
   return (
     <RootFlex>
       <Map initialRegion={location} customMapStyle={NightMap} showsUserLocation>
@@ -129,9 +85,10 @@ export const MapScreen: React.FC = ({}) => {
       </Map>
       {emergencyMenuOpen && (
         <EmergencyMenu
+          latitude={location.latitude}
+          longitude={location.longitude}
           open={emergencyMenuOpen}
           close={closeEmergencyMenu}
-          addUserMarker={addUserMarkerCallback}
         />
       )}
       <BottomBar openEmergencyMenu={openEmergencyMenu} />

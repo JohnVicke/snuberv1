@@ -31,6 +31,7 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthenticationSwitch } from './navigation/AuthenticationSwitch';
 import { navigationRef } from './navigation/RootNavigation';
 import { Colors } from './utils/styles/colors';
+import { ThemeProvider } from 'styled-components';
 
 const cache = new InMemoryCache({
   typePolicies: {

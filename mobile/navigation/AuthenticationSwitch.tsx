@@ -6,7 +6,7 @@ import { MainNavigator } from './MainNavigator';
 export const AuthenticationSwitch: React.FC = ({}) => {
   const { loading, error, data } = useMeQuery();
 
-  if (!data?.me) {
+  if (data?.me) {
     return <LoginScreen />;
   }
 

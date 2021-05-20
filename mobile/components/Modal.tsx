@@ -40,19 +40,11 @@ const Heading = styled.Text`
 
 interface ModalProps {
   title: string;
-  primaryAction(): void;
-  primaryTitle: string;
   children: React.ReactNode;
   close(): void;
 }
 
-export const Modal: React.FC<ModalProps> = ({
-  title,
-  primaryAction,
-  primaryTitle,
-  children,
-  close
-}) => {
+export const Modal: React.FC<ModalProps> = ({ title, children, close }) => {
   return (
     <MenuContainer>
       <HeaderContainer>
@@ -60,9 +52,6 @@ export const Modal: React.FC<ModalProps> = ({
         <Icon name="x" size={24} color={Colors.white} onPress={close} />
       </HeaderContainer>
       {children}
-      <ButtonContainer>
-        <Button onPress={primaryAction}>{primaryTitle}</Button>
-      </ButtonContainer>
     </MenuContainer>
   );
 };

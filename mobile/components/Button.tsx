@@ -6,7 +6,7 @@ import { Fonts } from '../utils/styles/fonts';
 
 interface ButtonProps {
   outlined?: boolean;
-  onPress(): void;
+  onPress(value: any): void;
   disabled?: boolean;
   align?: 'left' | 'right';
   mt?: number;
