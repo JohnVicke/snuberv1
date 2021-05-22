@@ -13,6 +13,7 @@ const Input = styled.TextInput`
   border-radius: 10px;
   padding: 20px 14px 10px 14px;
   font-family: ${Fonts.PoppinsRegular};
+  margin-bottom: 10px;
   line-height: 20px;
 `;
 

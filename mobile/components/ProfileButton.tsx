@@ -3,9 +3,7 @@ import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Colors } from '../utils/styles/colors';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
-import { useApolloClient } from '@apollo/client';
 import { Text } from 'react-native';
-import { space } from '../utils/styles/space';
 
 const RootView = styled.View`
   position: absolute;
@@ -15,33 +13,62 @@ const RootView = styled.View`
   flex-direction: row;
 `;
 
-const Username = styled.Text`
-  ${space};
-  color: #fff;
+const FriendRequestNotification = styled.View`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 15px;
+  width: 15px;
+  background-color: ${Colors.snuberRed};
+  border-radius: 200px;
+  position: absolute;
+  top: -5px;
+  right: 25px;
+  z-index: 100;
 `;
 
-interface ProfileButtonProps {}
+const FriendRequestText = styled.Text`
+  font-size: 10px;
+  color: ${Colors.white};
+`;
 
-export const ProfileButton: React.FC<ProfileButtonProps> = ({}) => {
-  const [logout, { data, loading }] = useLogoutMutation();
+const Border = styled.View`
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 5px;
+  background: ${Colors.darkBlue};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+interface ProfileButtonProps {
+  friendRequests: number;
+  openProfileModal: () => void;
+}
+
+// TODO: Replace with user image
+export const ProfileButton: React.FC<ProfileButtonProps> = ({
+  friendRequests,
+  openProfileModal
+}) => {
   const { loading: meLoading, error, data: meData } = useMeQuery();
-
-  const apolloClient = useApolloClient();
-
-  const handleLogout = async () => {
-    await logout();
-    await apolloClient.resetStore();
-  };
 
   return (
     <RootView>
-      <Username marginRight="10px">{meData?.me?.username}</Username>
-      <Icon
-        onPress={handleLogout}
-        name="log-out"
-        size={24}
-        color={Colors.white}
-      />
+      <Border>
+        {friendRequests && (
+          <FriendRequestNotification>
+            <FriendRequestText>{friendRequests}</FriendRequestText>
+          </FriendRequestNotification>
+        )}
+        <Icon
+          onPress={openProfileModal}
+          name="user"
+          size={24}
+          color={Colors.white}
+        />
+      </Border>
     </RootView>
   );
 };

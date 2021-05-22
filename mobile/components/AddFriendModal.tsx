@@ -1,34 +1,33 @@
 import { Formik } from 'formik';
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { Button } from './Button';
 import { Modal } from './Modal';
 import { TextField } from './TextField';
+import { useSendFriendRequestMutation } from '../generated/graphql';
 
 interface AddFriendModalProps {
   close(): void;
 }
 
 export const AddFriendModal: React.FC<AddFriendModalProps> = ({ close }) => {
+  const [sendFriendRequest, { data, loading }] = useSendFriendRequestMutation();
+
   return (
     <Modal title="Lägg till vän" close={close}>
       <Formik
         initialValues={{ username: '' }}
         onSubmit={async (values, { setErrors }) => {
-          const user = {
-            title: values.username
-          };
-          console.log(user);
+          if (values.username) {
+            const res = await sendFriendRequest({
+              variables: { username: values.username }
+            });
+            console.log(res);
+          }
           close();
         }}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          setFieldValue
-        }) => (
+        {({ handleBlur, handleSubmit, values, setFieldValue }) => (
           <View>
             <TextField
               label="Användarnamn"

@@ -312,6 +312,27 @@ export type RemoveMarkerMutation = (
   & Pick<Mutation, 'removeMarker'>
 );
 
+export type SendFriendRequestMutationVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+
+export type SendFriendRequestMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'sendFriendRequest'>
+);
+
+export type IncomingFriendRequestsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IncomingFriendRequestsQuery = (
+  { __typename?: 'Query' }
+  & { incomingFriendRequests: Array<(
+    { __typename?: 'Friends' }
+    & Pick<Friends, 'id' | 'fromUserId' | 'toUserId' | 'status' | 'createdAt' | 'updatedAt'>
+  )> }
+);
+
 export type MarkersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -501,6 +522,76 @@ export function useRemoveMarkerMutation(baseOptions?: Apollo.MutationHookOptions
 export type RemoveMarkerMutationHookResult = ReturnType<typeof useRemoveMarkerMutation>;
 export type RemoveMarkerMutationResult = Apollo.MutationResult<RemoveMarkerMutation>;
 export type RemoveMarkerMutationOptions = Apollo.BaseMutationOptions<RemoveMarkerMutation, RemoveMarkerMutationVariables>;
+export const SendFriendRequestDocument = gql`
+    mutation SendFriendRequest($username: String!) {
+  sendFriendRequest(username: $username)
+}
+    `;
+export type SendFriendRequestMutationFn = Apollo.MutationFunction<SendFriendRequestMutation, SendFriendRequestMutationVariables>;
+
+/**
+ * __useSendFriendRequestMutation__
+ *
+ * To run a mutation, you first call `useSendFriendRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendFriendRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendFriendRequestMutation, { data, loading, error }] = useSendFriendRequestMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *   },
+ * });
+ */
+export function useSendFriendRequestMutation(baseOptions?: Apollo.MutationHookOptions<SendFriendRequestMutation, SendFriendRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SendFriendRequestMutation, SendFriendRequestMutationVariables>(SendFriendRequestDocument, options);
+      }
+export type SendFriendRequestMutationHookResult = ReturnType<typeof useSendFriendRequestMutation>;
+export type SendFriendRequestMutationResult = Apollo.MutationResult<SendFriendRequestMutation>;
+export type SendFriendRequestMutationOptions = Apollo.BaseMutationOptions<SendFriendRequestMutation, SendFriendRequestMutationVariables>;
+export const IncomingFriendRequestsDocument = gql`
+    query IncomingFriendRequests {
+  incomingFriendRequests {
+    id
+    fromUserId
+    toUserId
+    status
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useIncomingFriendRequestsQuery__
+ *
+ * To run a query within a React component, call `useIncomingFriendRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIncomingFriendRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIncomingFriendRequestsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useIncomingFriendRequestsQuery(baseOptions?: Apollo.QueryHookOptions<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>(IncomingFriendRequestsDocument, options);
+      }
+export function useIncomingFriendRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>(IncomingFriendRequestsDocument, options);
+        }
+export type IncomingFriendRequestsQueryHookResult = ReturnType<typeof useIncomingFriendRequestsQuery>;
+export type IncomingFriendRequestsLazyQueryHookResult = ReturnType<typeof useIncomingFriendRequestsLazyQuery>;
+export type IncomingFriendRequestsQueryResult = Apollo.QueryResult<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>;
 export const MarkersDocument = gql`
     query Markers {
   markers {

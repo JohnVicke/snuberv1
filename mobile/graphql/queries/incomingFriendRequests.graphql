@@ -1,0 +1,10 @@
+query IncomingFriendRequests {
+  incomingFriendRequests {
+    id
+    fromUserId
+    toUserId
+    status
+    createdAt
+    updatedAt
+  }
+}

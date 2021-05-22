@@ -5,18 +5,24 @@ import styled from 'styled-components/native';
 
 import { Colors } from '../utils/styles/colors';
 import { Fonts } from '../utils/styles/fonts';
-import { Button } from './Button';
 
 const marginBottom = '10px';
 
-const MenuContainer = styled.ScrollView`
+interface MenuContainerProps {
+  fullSize: boolean;
+}
+
+const { width, height } = Dimensions.get('window');
+
+const MenuContainer = styled.ScrollView<MenuContainerProps>`
   align-self: center;
   position: absolute;
   z-index: 999;
-  width: ${Dimensions.get('window').width - 20}px;
-  bottom: 100px;
+  width: ${(props) => (props.fullSize ? width : `${width - 20}`)}px;
+  height: ${(props) => (props.fullSize ? '100%' : 'auto')};
+  bottom: ${(props) => (props.fullSize ? '0' : '100px')};
   background-color: ${Colors.blue};
-  border-radius: 10px;
+  border-radius: ${(props) => (props.fullSize ? 0 : '10px')};
   padding: 20px;
 `;
 
@@ -24,10 +30,6 @@ const HeaderContainer = styled.View`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-`;
-
-const ButtonContainer = styled.View`
-  margin-bottom: ${marginBottom};
 `;
 
 const Heading = styled.Text`
@@ -42,11 +44,17 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   close(): void;
+  fullSize?: boolean;
 }
 
-export const Modal: React.FC<ModalProps> = ({ title, children, close }) => {
+export const Modal: React.FC<ModalProps> = ({
+  title,
+  children,
+  close,
+  fullSize = false
+}) => {
   return (
-    <MenuContainer>
+    <MenuContainer fullSize={fullSize}>
       <HeaderContainer>
         <Heading>{title}</Heading>
         <Icon name="x" size={24} color={Colors.white} onPress={close} />

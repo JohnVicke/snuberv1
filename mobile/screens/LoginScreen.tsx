@@ -25,18 +25,10 @@ const LoginContainer = styled.View`
 interface LoginScreenProps {}
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({}) => {
-  const [focused, setFocused] = useState(false);
   const [login, { data: loginData, loading: loginLoading }] =
     useLoginMutation();
 
   const apolloClient = useApolloClient();
-
-  const handleLogin = async () => {
-    await login({
-      variables: { usernameOrEmail: 'kok', password: 'password' }
-    });
-    await apolloClient.resetStore();
-  };
 
   return (
     <LoginContainer>
@@ -55,25 +47,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({}) => {
       >
         {({ handleBlur, handleSubmit, values, setFieldValue }) => (
           <View>
-            <ThisIsNotVeryGood marginBottom="10px">
-              <TextField
-                label="Användarnamn"
-                field="usernameOrEmail"
-                value={values['usernameOrEmail']}
-                setValue={setFieldValue}
-                onBlur={handleBlur('usernameOrEmail')}
-              />
-            </ThisIsNotVeryGood>
-            <ThisIsNotVeryGood marginBottom="10px">
-              <TextField
-                label="Lösenord"
-                field="password"
-                secureTextEntry
-                setValue={setFieldValue}
-                onBlur={handleBlur('password')}
-                value={values['password']}
-              />
-            </ThisIsNotVeryGood>
+            <TextField
+              label="Användarnamn"
+              field="usernameOrEmail"
+              value={values['usernameOrEmail']}
+              setValue={setFieldValue}
+              onBlur={handleBlur('usernameOrEmail')}
+            />
+            <TextField
+              label="Lösenord"
+              field="password"
+              secureTextEntry
+              setValue={setFieldValue}
+              onBlur={handleBlur('password')}
+              value={values['password']}
+            />
             <Button onPress={handleSubmit}>Logga in</Button>
           </View>
         )}

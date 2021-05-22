@@ -8,8 +8,13 @@ import { BottomBar } from '../components/BottomBar';
 import { CustomMarker } from '../components/CustomMarker';
 import { EmergancyModal } from '../components/EmergencyModal';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { Profile } from '../components/Profile';
 import { ProfileButton } from '../components/ProfileButton';
-import { SnuberMarker, useMarkersQuery } from '../generated/graphql';
+import {
+  SnuberMarker,
+  useIncomingFriendRequestsQuery,
+  useMarkersQuery
+} from '../generated/graphql';
 import NightMap from '../utils/styles/customMapStyleNight.json';
 
 const Map = styled(MapView)`
@@ -31,12 +36,19 @@ const MODALS = {
   },
   emergency: {
     open: false
+  },
+  profile: {
+    open: false
   }
 };
 
 export const MapScreen: React.FC = ({}) => {
   const [location, setLocation] = useState<Region | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const { data: friendRequests, loading: loadingFriendRequests } =
+    useIncomingFriendRequestsQuery({
+      fetchPolicy: 'cache-and-network'
+    });
   const { data: markersData, loading } = useMarkersQuery({
     fetchPolicy: 'network-only'
   });
@@ -59,7 +71,12 @@ export const MapScreen: React.FC = ({}) => {
     })();
   }, []);
 
-  if (!location || error || !markersData?.markers) {
+  if (
+    !location ||
+    error ||
+    !markersData?.markers ||
+    !friendRequests?.incomingFriendRequests
+  ) {
     return (
       <View>
         <LoadingSpinner
@@ -92,7 +109,12 @@ export const MapScreen: React.FC = ({}) => {
           <CustomMarker key={marker.id} marker={marker} />
         ))}
       </Map>
-      <ProfileButton />
+
+      <ProfileButton
+        friendRequests={friendRequests?.incomingFriendRequests.length}
+        openProfileModal={openModal('profile')}
+      />
+
       {modalStatus.emergency.open && (
         <EmergancyModal
           latitude={location.latitude}
@@ -104,6 +126,8 @@ export const MapScreen: React.FC = ({}) => {
       {modalStatus.addFriend.open && (
         <AddFriendModal close={closeModal('addFriend')} />
       )}
+
+      {modalStatus.profile.open && <Profile close={closeModal('profile')} />}
 
       <BottomBar
         openEmergencyModal={openModal('emergency')}
