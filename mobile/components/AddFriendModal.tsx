@@ -1,6 +1,6 @@
-import { Formik } from 'formik';
 import React from 'react';
-import { View } from 'react-native';
+import { ErrorMessage, Formik } from 'formik';
+import { View, Text } from 'react-native';
 import { Button } from './Button';
 import { Modal } from './Modal';
 import { TextField } from './TextField';
@@ -22,12 +22,14 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ close }) => {
             const res = await sendFriendRequest({
               variables: { username: values.username }
             });
-            console.log(res);
+            if (res.data?.sendFriendRequest) {
+              return close();
+            }
+            setErrors({ username: 'Användarnamn existerar inte' });
           }
-          close();
         }}
       >
-        {({ handleBlur, handleSubmit, values, setFieldValue }) => (
+        {({ handleBlur, handleSubmit, values, setFieldValue, errors }) => (
           <View>
             <TextField
               label="Användarnamn"
@@ -35,6 +37,7 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({ close }) => {
               setValue={setFieldValue}
               onBlur={handleBlur('username')}
               value={values['username']}
+              error={errors.username}
             />
             <Button onPress={handleSubmit}>Skicka</Button>
           </View>

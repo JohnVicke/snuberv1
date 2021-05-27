@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { TextInputProps, View } from 'react-native';
+import { Text, TextInputProps, View } from 'react-native';
 import styled from 'styled-components/native';
 import { Colors } from '../utils/styles/colors';
 import { Fonts } from '../utils/styles/fonts';
@@ -36,6 +36,7 @@ type CustomInputProps = TextInputProps & {
   value: string;
   field: string;
   secureTextEntry?: boolean;
+  error?: string;
   setValue: (
     field: string,
     value: any,
@@ -44,7 +45,7 @@ type CustomInputProps = TextInputProps & {
 };
 
 export const TextField: React.FC<CustomInputProps> = (
-  { label, value, setValue, field, secureTextEntry },
+  { label, value, setValue, field, secureTextEntry, error },
   props
 ) => {
   const [focused, setFocused] = useState(false);
@@ -61,23 +62,37 @@ export const TextField: React.FC<CustomInputProps> = (
   };
 
   return (
-    <View>
-      <Label
-        focused={focused || value !== ''}
-        selectable={false}
-        onPress={handleLabelPress}
-      >
-        {label}
-      </Label>
-      <Input
-        {...rest}
-        ref={inputRef}
-        onBlur={() => setFocused(false)}
-        onFocus={() => setFocused(true)}
-        onChangeText={(e) => setValue(field, e)}
-        secureTextEntry={secureTextEntry}
-        autoCorrect={false}
-      ></Input>
-    </View>
+    <>
+      {error && (
+        <Text
+          style={{
+            fontSize: 12,
+            marginLeft: 10,
+            marginBottom: 5,
+            color: Colors.snuberRed
+          }}
+        >
+          {error}
+        </Text>
+      )}
+      <View>
+        <Label
+          focused={focused || value !== ''}
+          selectable={false}
+          onPress={handleLabelPress}
+        >
+          {label}
+        </Label>
+        <Input
+          {...rest}
+          ref={inputRef}
+          onBlur={() => setFocused(false)}
+          onFocus={() => setFocused(true)}
+          onChangeText={(e) => setValue(field, e)}
+          secureTextEntry={secureTextEntry}
+          autoCorrect={false}
+        />
+      </View>
+    </>
   );
 };

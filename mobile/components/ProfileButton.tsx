@@ -2,8 +2,6 @@ import React from 'react';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Colors } from '../utils/styles/colors';
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
-import { Text } from 'react-native';
 
 const RootView = styled.View`
   position: absolute;
@@ -43,7 +41,7 @@ const Border = styled.View`
 `;
 
 interface ProfileButtonProps {
-  friendRequests: number;
+  friendRequests?: number | false;
   openProfileModal: () => void;
 }
 
@@ -52,14 +50,14 @@ export const ProfileButton: React.FC<ProfileButtonProps> = ({
   friendRequests,
   openProfileModal
 }) => {
-  const { loading: meLoading, error, data: meData } = useMeQuery();
-
   return (
     <RootView>
       <Border>
         {friendRequests && (
           <FriendRequestNotification>
-            <FriendRequestText>{friendRequests}</FriendRequestText>
+            <FriendRequestText>
+              {friendRequests.toLocaleString()}
+            </FriendRequestText>
           </FriendRequestNotification>
         )}
         <Icon

@@ -29,16 +29,11 @@ export type Friend = {
   id: Scalars['Float'];
 };
 
-export type Friends = {
-  __typename?: 'Friends';
-  id: Scalars['Float'];
-  toUser: User;
-  fromUser: User;
-  fromUserId: Scalars['Float'];
-  toUserId: Scalars['Float'];
-  status: Status;
-  createdAt: Scalars['String'];
+export type FriendRequestResponse = {
+  __typename?: 'FriendRequestResponse';
+  displayName: Scalars['String'];
   updatedAt: Scalars['String'];
+  id: Scalars['Float'];
 };
 
 export type LatLng = {
@@ -185,7 +180,7 @@ export type Query = {
   post?: Maybe<Post>;
   me?: Maybe<User>;
   markers: Array<SnuberMarker>;
-  incomingFriendRequests: Array<Friends>;
+  incomingFriendRequests: Array<FriendRequestResponse>;
   friends: Array<Friend>;
 };
 
@@ -234,11 +229,6 @@ export type UserResponse = {
   errors?: Maybe<Array<FieldError>>;
   user?: Maybe<User>;
 };
-
-export enum Status {
-  Pending = 'PENDING',
-  Accepted = 'ACCEPTED'
-}
 
 export type RegularErrorFragment = (
   { __typename?: 'FieldError' }
@@ -328,8 +318,8 @@ export type IncomingFriendRequestsQueryVariables = Exact<{ [key: string]: never;
 export type IncomingFriendRequestsQuery = (
   { __typename?: 'Query' }
   & { incomingFriendRequests: Array<(
-    { __typename?: 'Friends' }
-    & Pick<Friends, 'id' | 'fromUserId' | 'toUserId' | 'status' | 'createdAt' | 'updatedAt'>
+    { __typename?: 'FriendRequestResponse' }
+    & Pick<FriendRequestResponse, 'displayName' | 'updatedAt' | 'id'>
   )> }
 );
 
@@ -556,12 +546,9 @@ export type SendFriendRequestMutationOptions = Apollo.BaseMutationOptions<SendFr
 export const IncomingFriendRequestsDocument = gql`
     query IncomingFriendRequests {
   incomingFriendRequests {
-    id
-    fromUserId
-    toUserId
-    status
-    createdAt
+    displayName
     updatedAt
+    id
   }
 }
     `;

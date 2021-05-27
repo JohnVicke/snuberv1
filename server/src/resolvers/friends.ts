@@ -24,6 +24,18 @@ class Friend {
   id: number;
 }
 
+@ObjectType()
+class FriendRequestResponse {
+  @Field()
+  displayName: string;
+
+  @Field(() => String)
+  updatedAt: Date;
+
+  @Field()
+  id: number;
+}
+
 @Resolver(Friends)
 export class FriendsResolver {
   @Mutation(() => Boolean)
@@ -60,20 +72,27 @@ export class FriendsResolver {
     return true;
   }
 
-  @Query(() => [Friends])
+  @Query(() => [FriendRequestResponse])
   @UseMiddleware(isAuth)
   async incomingFriendRequests(
     @Ctx() { req }: SnuberContext
-  ): Promise<Friends[]> {
-    return Friends.find({
-      toUserId: req.session.userId,
-      status: Status.PENDING
-    });
+  ): Promise<FriendRequestResponse[]> {
+    console.log(req.session.userId);
+    const replacements: any[] = [req.session.userId, Status.PENDING];
+    const requests = await getConnection().query(
+      `
+      select u."displayName", f."updatedAt", u.id from "user" as u
+      inner join "friends" as f
+      on f."toUserId" = $1 and f.status = $2
+      `,
+      replacements
+    );
+    return requests;
   }
 
   @Query(() => [Friend])
   @UseMiddleware(isAuth)
-  async friends(@Ctx() { req }: SnuberContext): Promise<Friend> {
+  async friends(@Ctx() { req }: SnuberContext): Promise<Friend[]> {
     const replacements: any[] = [req.session.userId, Status.ACCEPTED];
     const friends = await getConnection().query(
       `
