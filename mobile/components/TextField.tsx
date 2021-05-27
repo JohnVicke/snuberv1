@@ -49,12 +49,11 @@ export const TextField: React.FC<CustomInputProps> = (
 ) => {
   const [focused, setFocused] = useState(false);
   const { style, onBlur, ...rest } = props;
-  const inputRef =
-    useRef<
-      TextInput & {
-        focus(): void;
-      }
-    >();
+  const inputRef = useRef<
+    TextInput & {
+      focus(): void;
+    }
+  >();
 
   const handleLabelPress = () => {
     if (inputRef && inputRef?.current) inputRef.current.focus();

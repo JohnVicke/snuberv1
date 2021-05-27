@@ -1,30 +1,14 @@
 import React from 'react';
-import { Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import styled from 'styled-components/native';
+import { animated, useSpring } from 'react-spring';
 
 import { Colors } from '../utils/styles/colors';
 import { Fonts } from '../utils/styles/fonts';
+import { Dimensions, TouchableWithoutFeedback, View } from 'react-native';
 
 const marginBottom = '10px';
-
-interface MenuContainerProps {
-  fullSize: boolean;
-}
-
-const { width, height } = Dimensions.get('window');
-
-const MenuContainer = styled.ScrollView<MenuContainerProps>`
-  align-self: center;
-  position: absolute;
-  z-index: 999;
-  width: ${(props) => (props.fullSize ? width : `${width - 20}`)}px;
-  height: ${(props) => (props.fullSize ? '100%' : 'auto')};
-  bottom: ${(props) => (props.fullSize ? '0' : '100px')};
-  background-color: ${Colors.blue};
-  border-radius: ${(props) => (props.fullSize ? 0 : '10px')};
-  padding: 20px;
-`;
+const { height, width } = Dimensions.get('window');
 
 const HeaderContainer = styled.View`
   display: flex;
@@ -40,6 +24,17 @@ const Heading = styled.Text`
   margin-bottom: ${marginBottom};
 `;
 
+const DissmissableArea = styled.TouchableOpacity`
+  bottom: 0;
+  z-index: 10;
+  position: absolute;
+  height: 100%;
+  width: ${width}px;
+  background-color: rgba(0, 0, 0, 0.3);
+`;
+
+const AnimatedView = animated(View);
+
 interface ModalProps {
   title: string;
   children: React.ReactNode;
@@ -53,13 +48,33 @@ export const Modal: React.FC<ModalProps> = ({
   close,
   fullSize = false
 }) => {
+  const styleprops = useSpring({
+    bottom: 0,
+    from: { bottom: fullSize ? -height : -200 }
+  });
+
   return (
-    <MenuContainer fullSize={fullSize}>
-      <HeaderContainer>
-        <Heading>{title}</Heading>
-        <Icon name="x" size={24} color={Colors.white} onPress={close} />
-      </HeaderContainer>
-      {children}
-    </MenuContainer>
+    <DissmissableArea onPress={close}>
+      <TouchableWithoutFeedback>
+        <AnimatedView
+          {...styleprops}
+          style={{
+            alignSelf: 'center',
+            position: 'absolute',
+            zIndex: 99,
+            width: '100%',
+            height: fullSize ? '100%' : 'auto',
+            backgroundColor: Colors.blue,
+            padding: 20
+          }}
+        >
+          <HeaderContainer>
+            <Heading>{title}</Heading>
+            <Icon name="x" size={24} color={Colors.white} onPress={close} />
+          </HeaderContainer>
+          {children}
+        </AnimatedView>
+      </TouchableWithoutFeedback>
+    </DissmissableArea>
   );
 };

@@ -12,6 +12,7 @@ const RootContainer = styled.View`
   justify-content: center;
   margin: auto 0;
   align-items: center;
+  min-height: 60px;
 `;
 
 const Icons = styled.View`

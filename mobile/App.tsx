@@ -16,7 +16,6 @@ import {
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Provider } from 'react-redux';
 import {
   ApolloClient,
   ApolloProvider,
@@ -31,7 +30,6 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthenticationSwitch } from './navigation/AuthenticationSwitch';
 import { navigationRef } from './navigation/RootNavigation';
 import { Colors } from './utils/styles/colors';
-import { ThemeProvider } from 'styled-components';
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -66,7 +64,7 @@ const apolloClient = new ApolloClient({
 });
 
 export default function App() {
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [loadingCache, setLoadingCache] = useState(true);
 
   const [pacificoLoaded] = usePacifico({ Pacifico_400Regular });
@@ -84,11 +82,13 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      const { status: locationStatus } =
-        await requestForegroundPermissionsAsync();
+      const {
+        status: locationStatus
+      } = await requestForegroundPermissionsAsync();
       const serviceEnabled = await hasServicesEnabledAsync();
-      const { status: imagePickerStatus } =
-        await requestMediaLibraryPermissionsAsync();
+      const {
+        status: imagePickerStatus
+      } = await requestMediaLibraryPermissionsAsync();
       if (imagePickerStatus !== 'granted') {
         alert('Sorry, we need camera roll permissions to make this work!');
       }
