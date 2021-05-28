@@ -34,6 +34,9 @@ class FriendRequestResponse {
 
   @Field()
   id: number;
+
+  @Field()
+  status: Status;
 }
 
 @Resolver(Friends)
@@ -66,9 +69,8 @@ export class FriendsResolver {
     if (!answer) {
       await Friends.delete(id);
     } else {
-      await Friends.update({ id }, { status: Status.ACCEPTED });
+      await Friends.update({ fromUserId: id }, { status: Status.ACCEPTED });
     }
-    // Failed successfully
     return true;
   }
 
@@ -79,9 +81,10 @@ export class FriendsResolver {
   ): Promise<FriendRequestResponse[]> {
     console.log(req.session.userId);
     const replacements: any[] = [req.session.userId, Status.PENDING];
+    // TODO fix: sends all friend requests in the database....
     const requests = await getConnection().query(
       `
-      select u."displayName", f."updatedAt", u.id from "user" as u
+      select u."displayName", f."updatedAt", f."status", u.id from "user" as u
       inner join "friends" as f
       on f."toUserId" = $1 and f.status = $2
       `,
@@ -94,6 +97,7 @@ export class FriendsResolver {
   @UseMiddleware(isAuth)
   async friends(@Ctx() { req }: SnuberContext): Promise<Friend[]> {
     const replacements: any[] = [req.session.userId, Status.ACCEPTED];
+    console.log(req.session.userId);
     const friends = await getConnection().query(
       `
       select "displayName", "id" from "user" where id in 

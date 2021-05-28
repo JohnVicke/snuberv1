@@ -51,7 +51,7 @@ export const MapScreen: React.FC = ({}) => {
   } = useIncomingFriendRequestsQuery({
     fetchPolicy: 'network-only'
   });
-  const { data: markersData, loading } = useMarkersQuery({
+  const { data: markersData, loading, error: markerError } = useMarkersQuery({
     fetchPolicy: 'network-only'
   });
 
@@ -73,11 +73,11 @@ export const MapScreen: React.FC = ({}) => {
     })();
   }, []);
 
-  if (!location || error || !markersData?.markers) {
+  if (!location || error) {
     return (
       <View>
         <LoadingSpinner
-          visible={!location || !!error}
+          visible={!location || !!error || loading}
           text="Hämtar din plats åt Bill Gates"
         />
       </View>
@@ -102,9 +102,10 @@ export const MapScreen: React.FC = ({}) => {
         showsMyLocationButton={false}
         followsUserLocation
       >
-        {markersData.markers.map((marker: SnuberMarker) => (
-          <CustomMarker key={marker.id} marker={marker} />
-        ))}
+        {markersData?.markers &&
+          markersData.markers.map((marker: SnuberMarker) => (
+            <CustomMarker key={marker.id} marker={marker} />
+          ))}
       </Map>
 
       <ProfileButton

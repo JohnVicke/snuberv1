@@ -4,7 +4,7 @@ import { setContext } from '@apollo/client/link/context';
 
 const cache = new InMemoryCache();
 
-const uri = 'http://192.168.1.215:42069/graphql';
+const uri = 'http://af5dc0e71732.ngrok.io/graphql';
 
 const httpLink = createHttpLink({
   uri
