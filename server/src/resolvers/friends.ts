@@ -77,7 +77,6 @@ export class FriendsResolver {
         .where('"fromUserId" = :id', { id })
         .execute();
     }
-    // Failed successfully
     return true;
   }
 
@@ -87,6 +86,7 @@ export class FriendsResolver {
     @Ctx() { req }: SnuberContext
   ): Promise<FriendRequestResponse[]> {
     const replacements: any[] = [req.session.userId, Status.PENDING];
+    // TODO fix: sends all friend requests in the database....
     const requests = await getConnection().query(
       `
       select f."updatedAt", f."status", u."id", u."displayName" from "user" as u
@@ -102,6 +102,7 @@ export class FriendsResolver {
   @UseMiddleware(isAuth)
   async friends(@Ctx() { req }: SnuberContext): Promise<Friend[]> {
     const replacements: any[] = [req.session.userId, Status.ACCEPTED];
+    console.log(req.session.userId);
     const friends = await getConnection().query(
       `
       select "displayName", "id" from "user" where id in 

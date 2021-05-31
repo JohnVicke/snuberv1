@@ -3,8 +3,8 @@
   "expoServerPort": null,
   "packagerPort": null,
   "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null,
+  "expoServerNgrokUrl": "https://zj-jf9.virren1337.mobile.exp.direct",
+  "packagerNgrokUrl": "https://packager.zj-jf9.virren1337.mobile.exp.direct",
+  "ngrokPid": 284992,
   "webpackServerPort": null
 }
