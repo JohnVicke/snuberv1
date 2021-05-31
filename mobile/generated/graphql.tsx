@@ -1,10 +1,14 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-const defaultOptions =  {}
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> &
+  { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> &
+  { [SubKey in K]: Maybe<T[SubKey]> };
+const defaultOptions = {};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -15,7 +19,6 @@ export type Scalars = {
   /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
   DateTime: any;
 };
-
 
 export type FieldError = {
   __typename?: 'FieldError';
@@ -89,63 +92,52 @@ export type Mutation = {
   answerFriendRequest: Scalars['Boolean'];
 };
 
-
 export type MutationVoteArgs = {
   value: Scalars['Int'];
   postId: Scalars['Int'];
 };
 
-
 export type MutationCreatePostArgs = {
   options: PostInput;
 };
-
 
 export type MutationUpdatePostArgs = {
   title?: Maybe<Scalars['String']>;
   id: Scalars['Float'];
 };
 
-
 export type MutationDeletePostArgs = {
   id: Scalars['Float'];
 };
 
-
 export type MutationForgotPasswordArgs = {
   email: Scalars['String'];
 };
-
 
 export type MutationChangePasswordArgs = {
   newPassword: Scalars['String'];
   token: Scalars['String'];
 };
 
-
 export type MutationRegisterArgs = {
   input: UserInput;
 };
-
 
 export type MutationLoginArgs = {
   password: Scalars['String'];
   usernameOrEmail: Scalars['String'];
 };
 
-
 export type MutationCreateMarkerArgs = {
   options: MarkerInput;
 };
-
 
 export type MutationSendFriendRequestArgs = {
   username: Scalars['String'];
 };
 
-
 export type MutationAnswerFriendRequestArgs = {
-  friendsId: Scalars['Float'];
+  friendsId: Scalars['Int'];
   answer: Scalars['Boolean'];
 };
 
@@ -184,12 +176,10 @@ export type Query = {
   friends: Array<Friend>;
 };
 
-
 export type QueryPostsArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
-
 
 export type QueryPostArgs = {
   id: Scalars['Int'];
@@ -230,26 +220,30 @@ export type UserResponse = {
   user?: Maybe<User>;
 };
 
-export type RegularErrorFragment = (
-  { __typename?: 'FieldError' }
-  & Pick<FieldError, 'field' | 'message'>
-);
+export type RegularErrorFragment = { __typename?: 'FieldError' } & Pick<
+  FieldError,
+  'field' | 'message'
+>;
 
-export type RegularUserFragment = (
-  { __typename?: 'User' }
-  & Pick<User, 'id' | 'username'>
-);
+export type RegularUserFragment = { __typename?: 'User' } & Pick<
+  User,
+  'id' | 'username'
+>;
 
-export type RegularUserResponseFragment = (
-  { __typename?: 'UserResponse' }
-  & { errors?: Maybe<Array<(
-    { __typename?: 'FieldError' }
-    & RegularErrorFragment
-  )>>, user?: Maybe<(
-    { __typename?: 'User' }
-    & RegularUserFragment
-  )> }
-);
+export type RegularUserResponseFragment = { __typename?: 'UserResponse' } & {
+  errors?: Maybe<Array<{ __typename?: 'FieldError' } & RegularErrorFragment>>;
+  user?: Maybe<{ __typename?: 'User' } & RegularUserFragment>;
+};
+
+export type AnswerFriendRequestMutationVariables = Exact<{
+  answer: Scalars['Boolean'];
+  friendsId: Scalars['Int'];
+}>;
+
+export type AnswerFriendRequestMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'answerFriendRequest'
+>;
 
 export type CreateMarkerMutationVariables = Exact<{
   title: Scalars['String'];
@@ -257,140 +251,188 @@ export type CreateMarkerMutationVariables = Exact<{
   longitude: Scalars['Float'];
 }>;
 
-
-export type CreateMarkerMutation = (
-  { __typename?: 'Mutation' }
-  & { createMarker: (
-    { __typename?: 'MarkerResponse' }
-    & { marker?: Maybe<(
-      { __typename?: 'Marker' }
-      & Pick<Marker, 'latitude' | 'longitude' | 'id' | 'creatorId'>
-    )>, errors?: Maybe<Array<(
-      { __typename?: 'MarkerError' }
-      & Pick<MarkerError, 'type' | 'message'>
-    )>> }
-  ) }
-);
+export type CreateMarkerMutation = { __typename?: 'Mutation' } & {
+  createMarker: { __typename?: 'MarkerResponse' } & {
+    marker?: Maybe<
+      { __typename?: 'Marker' } & Pick<
+        Marker,
+        'latitude' | 'longitude' | 'id' | 'creatorId'
+      >
+    >;
+    errors?: Maybe<
+      Array<
+        { __typename?: 'MarkerError' } & Pick<MarkerError, 'type' | 'message'>
+      >
+    >;
+  };
+};
 
 export type LoginMutationVariables = Exact<{
   usernameOrEmail: Scalars['String'];
   password: Scalars['String'];
 }>;
 
+export type LoginMutation = { __typename?: 'Mutation' } & {
+  login: { __typename?: 'UserResponse' } & RegularUserResponseFragment;
+};
 
-export type LoginMutation = (
-  { __typename?: 'Mutation' }
-  & { login: (
-    { __typename?: 'UserResponse' }
-    & RegularUserResponseFragment
-  ) }
-);
+export type LogoutMutationVariables = Exact<{ [key: string]: never }>;
 
-export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+export type LogoutMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'logout'
+>;
 
+export type RemoveMarkerMutationVariables = Exact<{ [key: string]: never }>;
 
-export type LogoutMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'logout'>
-);
-
-export type RemoveMarkerMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type RemoveMarkerMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'removeMarker'>
-);
+export type RemoveMarkerMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'removeMarker'
+>;
 
 export type SendFriendRequestMutationVariables = Exact<{
   username: Scalars['String'];
 }>;
 
+export type SendFriendRequestMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'sendFriendRequest'
+>;
 
-export type SendFriendRequestMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'sendFriendRequest'>
-);
+export type IncomingFriendRequestsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type IncomingFriendRequestsQueryVariables = Exact<{ [key: string]: never; }>;
+export type IncomingFriendRequestsQuery = { __typename?: 'Query' } & {
+  incomingFriendRequests: Array<
+    { __typename?: 'FriendRequestResponse' } & Pick<
+      FriendRequestResponse,
+      'displayName' | 'updatedAt' | 'id'
+    >
+  >;
+};
 
+export type MarkersQueryVariables = Exact<{ [key: string]: never }>;
 
-export type IncomingFriendRequestsQuery = (
-  { __typename?: 'Query' }
-  & { incomingFriendRequests: Array<(
-    { __typename?: 'FriendRequestResponse' }
-    & Pick<FriendRequestResponse, 'displayName' | 'updatedAt' | 'id'>
-  )> }
-);
+export type MarkersQuery = { __typename?: 'Query' } & {
+  markers: Array<
+    { __typename?: 'SnuberMarker' } & Pick<
+      SnuberMarker,
+      'title' | 'updatedAt' | 'creatorId' | 'id'
+    > & {
+        latLng: { __typename?: 'LatLng' } & Pick<
+          LatLng,
+          'latitude' | 'longitude'
+        >;
+      }
+  >;
+};
 
-export type MarkersQueryVariables = Exact<{ [key: string]: never; }>;
+export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
-
-export type MarkersQuery = (
-  { __typename?: 'Query' }
-  & { markers: Array<(
-    { __typename?: 'SnuberMarker' }
-    & Pick<SnuberMarker, 'title' | 'updatedAt' | 'creatorId' | 'id'>
-    & { latLng: (
-      { __typename?: 'LatLng' }
-      & Pick<LatLng, 'latitude' | 'longitude'>
-    ) }
-  )> }
-);
-
-export type MeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type MeQuery = (
-  { __typename?: 'Query' }
-  & { me?: Maybe<(
-    { __typename?: 'User' }
-    & RegularUserFragment
-  )> }
-);
+export type MeQuery = { __typename?: 'Query' } & {
+  me?: Maybe<{ __typename?: 'User' } & RegularUserFragment>;
+};
 
 export const RegularErrorFragmentDoc = gql`
-    fragment RegularError on FieldError {
-  field
-  message
-}
-    `;
+  fragment RegularError on FieldError {
+    field
+    message
+  }
+`;
 export const RegularUserFragmentDoc = gql`
-    fragment RegularUser on User {
-  id
-  username
-}
-    `;
+  fragment RegularUser on User {
+    id
+    username
+  }
+`;
 export const RegularUserResponseFragmentDoc = gql`
-    fragment RegularUserResponse on UserResponse {
-  errors {
-    ...RegularError
-  }
-  user {
-    ...RegularUser
-  }
-}
-    ${RegularErrorFragmentDoc}
-${RegularUserFragmentDoc}`;
-export const CreateMarkerDocument = gql`
-    mutation CreateMarker($title: String!, $latitude: Float!, $longitude: Float!) {
-  createMarker(
-    options: {title: $title, latitude: $latitude, longitude: $longitude}
-  ) {
-    marker {
-      latitude
-      longitude
-      id
-      creatorId
-    }
+  fragment RegularUserResponse on UserResponse {
     errors {
-      type
-      message
+      ...RegularError
+    }
+    user {
+      ...RegularUser
     }
   }
+  ${RegularErrorFragmentDoc}
+  ${RegularUserFragmentDoc}
+`;
+export const AnswerFriendRequestDocument = gql`
+  mutation AnswerFriendRequest($answer: Boolean!, $friendsId: Int!) {
+    answerFriendRequest(answer: $answer, friendsId: $friendsId)
+  }
+`;
+export type AnswerFriendRequestMutationFn = Apollo.MutationFunction<
+  AnswerFriendRequestMutation,
+  AnswerFriendRequestMutationVariables
+>;
+
+/**
+ * __useAnswerFriendRequestMutation__
+ *
+ * To run a mutation, you first call `useAnswerFriendRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAnswerFriendRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [answerFriendRequestMutation, { data, loading, error }] = useAnswerFriendRequestMutation({
+ *   variables: {
+ *      answer: // value for 'answer'
+ *      friendsId: // value for 'friendsId'
+ *   },
+ * });
+ */
+export function useAnswerFriendRequestMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    AnswerFriendRequestMutation,
+    AnswerFriendRequestMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    AnswerFriendRequestMutation,
+    AnswerFriendRequestMutationVariables
+  >(AnswerFriendRequestDocument, options);
 }
-    `;
-export type CreateMarkerMutationFn = Apollo.MutationFunction<CreateMarkerMutation, CreateMarkerMutationVariables>;
+export type AnswerFriendRequestMutationHookResult = ReturnType<
+  typeof useAnswerFriendRequestMutation
+>;
+export type AnswerFriendRequestMutationResult =
+  Apollo.MutationResult<AnswerFriendRequestMutation>;
+export type AnswerFriendRequestMutationOptions = Apollo.BaseMutationOptions<
+  AnswerFriendRequestMutation,
+  AnswerFriendRequestMutationVariables
+>;
+export const CreateMarkerDocument = gql`
+  mutation CreateMarker(
+    $title: String!
+    $latitude: Float!
+    $longitude: Float!
+  ) {
+    createMarker(
+      options: { title: $title, latitude: $latitude, longitude: $longitude }
+    ) {
+      marker {
+        latitude
+        longitude
+        id
+        creatorId
+      }
+      errors {
+        type
+        message
+      }
+    }
+  }
+`;
+export type CreateMarkerMutationFn = Apollo.MutationFunction<
+  CreateMarkerMutation,
+  CreateMarkerMutationVariables
+>;
 
 /**
  * __useCreateMarkerMutation__
@@ -411,21 +453,39 @@ export type CreateMarkerMutationFn = Apollo.MutationFunction<CreateMarkerMutatio
  *   },
  * });
  */
-export function useCreateMarkerMutation(baseOptions?: Apollo.MutationHookOptions<CreateMarkerMutation, CreateMarkerMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateMarkerMutation, CreateMarkerMutationVariables>(CreateMarkerDocument, options);
-      }
-export type CreateMarkerMutationHookResult = ReturnType<typeof useCreateMarkerMutation>;
-export type CreateMarkerMutationResult = Apollo.MutationResult<CreateMarkerMutation>;
-export type CreateMarkerMutationOptions = Apollo.BaseMutationOptions<CreateMarkerMutation, CreateMarkerMutationVariables>;
-export const LoginDocument = gql`
-    mutation Login($usernameOrEmail: String!, $password: String!) {
-  login(usernameOrEmail: $usernameOrEmail, password: $password) {
-    ...RegularUserResponse
-  }
+export function useCreateMarkerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateMarkerMutation,
+    CreateMarkerMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    CreateMarkerMutation,
+    CreateMarkerMutationVariables
+  >(CreateMarkerDocument, options);
 }
-    ${RegularUserResponseFragmentDoc}`;
-export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
+export type CreateMarkerMutationHookResult = ReturnType<
+  typeof useCreateMarkerMutation
+>;
+export type CreateMarkerMutationResult =
+  Apollo.MutationResult<CreateMarkerMutation>;
+export type CreateMarkerMutationOptions = Apollo.BaseMutationOptions<
+  CreateMarkerMutation,
+  CreateMarkerMutationVariables
+>;
+export const LoginDocument = gql`
+  mutation Login($usernameOrEmail: String!, $password: String!) {
+    login(usernameOrEmail: $usernameOrEmail, password: $password) {
+      ...RegularUserResponse
+    }
+  }
+  ${RegularUserResponseFragmentDoc}
+`;
+export type LoginMutationFn = Apollo.MutationFunction<
+  LoginMutation,
+  LoginMutationVariables
+>;
 
 /**
  * __useLoginMutation__
@@ -445,19 +505,33 @@ export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutati
  *   },
  * });
  */
-export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
-      }
+export function useLoginMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    LoginMutation,
+    LoginMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<LoginMutation, LoginMutationVariables>(
+    LoginDocument,
+    options
+  );
+}
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
-export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export type LoginMutationOptions = Apollo.BaseMutationOptions<
+  LoginMutation,
+  LoginMutationVariables
+>;
 export const LogoutDocument = gql`
-    mutation Logout {
-  logout
-}
-    `;
-export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+  mutation Logout {
+    logout
+  }
+`;
+export type LogoutMutationFn = Apollo.MutationFunction<
+  LogoutMutation,
+  LogoutMutationVariables
+>;
 
 /**
  * __useLogoutMutation__
@@ -475,19 +549,33 @@ export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMut
  *   },
  * });
  */
-export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
-      }
+export function useLogoutMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    LogoutMutation,
+    LogoutMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(
+    LogoutDocument,
+    options
+  );
+}
 export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
-export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<
+  LogoutMutation,
+  LogoutMutationVariables
+>;
 export const RemoveMarkerDocument = gql`
-    mutation RemoveMarker {
-  removeMarker
-}
-    `;
-export type RemoveMarkerMutationFn = Apollo.MutationFunction<RemoveMarkerMutation, RemoveMarkerMutationVariables>;
+  mutation RemoveMarker {
+    removeMarker
+  }
+`;
+export type RemoveMarkerMutationFn = Apollo.MutationFunction<
+  RemoveMarkerMutation,
+  RemoveMarkerMutationVariables
+>;
 
 /**
  * __useRemoveMarkerMutation__
@@ -505,19 +593,36 @@ export type RemoveMarkerMutationFn = Apollo.MutationFunction<RemoveMarkerMutatio
  *   },
  * });
  */
-export function useRemoveMarkerMutation(baseOptions?: Apollo.MutationHookOptions<RemoveMarkerMutation, RemoveMarkerMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RemoveMarkerMutation, RemoveMarkerMutationVariables>(RemoveMarkerDocument, options);
-      }
-export type RemoveMarkerMutationHookResult = ReturnType<typeof useRemoveMarkerMutation>;
-export type RemoveMarkerMutationResult = Apollo.MutationResult<RemoveMarkerMutation>;
-export type RemoveMarkerMutationOptions = Apollo.BaseMutationOptions<RemoveMarkerMutation, RemoveMarkerMutationVariables>;
-export const SendFriendRequestDocument = gql`
-    mutation SendFriendRequest($username: String!) {
-  sendFriendRequest(username: $username)
+export function useRemoveMarkerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RemoveMarkerMutation,
+    RemoveMarkerMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RemoveMarkerMutation,
+    RemoveMarkerMutationVariables
+  >(RemoveMarkerDocument, options);
 }
-    `;
-export type SendFriendRequestMutationFn = Apollo.MutationFunction<SendFriendRequestMutation, SendFriendRequestMutationVariables>;
+export type RemoveMarkerMutationHookResult = ReturnType<
+  typeof useRemoveMarkerMutation
+>;
+export type RemoveMarkerMutationResult =
+  Apollo.MutationResult<RemoveMarkerMutation>;
+export type RemoveMarkerMutationOptions = Apollo.BaseMutationOptions<
+  RemoveMarkerMutation,
+  RemoveMarkerMutationVariables
+>;
+export const SendFriendRequestDocument = gql`
+  mutation SendFriendRequest($username: String!) {
+    sendFriendRequest(username: $username)
+  }
+`;
+export type SendFriendRequestMutationFn = Apollo.MutationFunction<
+  SendFriendRequestMutation,
+  SendFriendRequestMutationVariables
+>;
 
 /**
  * __useSendFriendRequestMutation__
@@ -536,22 +641,36 @@ export type SendFriendRequestMutationFn = Apollo.MutationFunction<SendFriendRequ
  *   },
  * });
  */
-export function useSendFriendRequestMutation(baseOptions?: Apollo.MutationHookOptions<SendFriendRequestMutation, SendFriendRequestMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SendFriendRequestMutation, SendFriendRequestMutationVariables>(SendFriendRequestDocument, options);
-      }
-export type SendFriendRequestMutationHookResult = ReturnType<typeof useSendFriendRequestMutation>;
-export type SendFriendRequestMutationResult = Apollo.MutationResult<SendFriendRequestMutation>;
-export type SendFriendRequestMutationOptions = Apollo.BaseMutationOptions<SendFriendRequestMutation, SendFriendRequestMutationVariables>;
-export const IncomingFriendRequestsDocument = gql`
-    query IncomingFriendRequests {
-  incomingFriendRequests {
-    displayName
-    updatedAt
-    id
-  }
+export function useSendFriendRequestMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    SendFriendRequestMutation,
+    SendFriendRequestMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    SendFriendRequestMutation,
+    SendFriendRequestMutationVariables
+  >(SendFriendRequestDocument, options);
 }
-    `;
+export type SendFriendRequestMutationHookResult = ReturnType<
+  typeof useSendFriendRequestMutation
+>;
+export type SendFriendRequestMutationResult =
+  Apollo.MutationResult<SendFriendRequestMutation>;
+export type SendFriendRequestMutationOptions = Apollo.BaseMutationOptions<
+  SendFriendRequestMutation,
+  SendFriendRequestMutationVariables
+>;
+export const IncomingFriendRequestsDocument = gql`
+  query IncomingFriendRequests {
+    incomingFriendRequests {
+      displayName
+      updatedAt
+      id
+    }
+  }
+`;
 
 /**
  * __useIncomingFriendRequestsQuery__
@@ -568,31 +687,54 @@ export const IncomingFriendRequestsDocument = gql`
  *   },
  * });
  */
-export function useIncomingFriendRequestsQuery(baseOptions?: Apollo.QueryHookOptions<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>(IncomingFriendRequestsDocument, options);
-      }
-export function useIncomingFriendRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>(IncomingFriendRequestsDocument, options);
-        }
-export type IncomingFriendRequestsQueryHookResult = ReturnType<typeof useIncomingFriendRequestsQuery>;
-export type IncomingFriendRequestsLazyQueryHookResult = ReturnType<typeof useIncomingFriendRequestsLazyQuery>;
-export type IncomingFriendRequestsQueryResult = Apollo.QueryResult<IncomingFriendRequestsQuery, IncomingFriendRequestsQueryVariables>;
-export const MarkersDocument = gql`
-    query Markers {
-  markers {
-    latLng {
-      latitude
-      longitude
-    }
-    title
-    updatedAt
-    creatorId
-    id
-  }
+export function useIncomingFriendRequestsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    IncomingFriendRequestsQuery,
+    IncomingFriendRequestsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    IncomingFriendRequestsQuery,
+    IncomingFriendRequestsQueryVariables
+  >(IncomingFriendRequestsDocument, options);
 }
-    `;
+export function useIncomingFriendRequestsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    IncomingFriendRequestsQuery,
+    IncomingFriendRequestsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    IncomingFriendRequestsQuery,
+    IncomingFriendRequestsQueryVariables
+  >(IncomingFriendRequestsDocument, options);
+}
+export type IncomingFriendRequestsQueryHookResult = ReturnType<
+  typeof useIncomingFriendRequestsQuery
+>;
+export type IncomingFriendRequestsLazyQueryHookResult = ReturnType<
+  typeof useIncomingFriendRequestsLazyQuery
+>;
+export type IncomingFriendRequestsQueryResult = Apollo.QueryResult<
+  IncomingFriendRequestsQuery,
+  IncomingFriendRequestsQueryVariables
+>;
+export const MarkersDocument = gql`
+  query Markers {
+    markers {
+      latLng {
+        latitude
+        longitude
+      }
+      title
+      updatedAt
+      creatorId
+      id
+    }
+  }
+`;
 
 /**
  * __useMarkersQuery__
@@ -609,24 +751,38 @@ export const MarkersDocument = gql`
  *   },
  * });
  */
-export function useMarkersQuery(baseOptions?: Apollo.QueryHookOptions<MarkersQuery, MarkersQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<MarkersQuery, MarkersQueryVariables>(MarkersDocument, options);
-      }
-export function useMarkersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MarkersQuery, MarkersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<MarkersQuery, MarkersQueryVariables>(MarkersDocument, options);
-        }
+export function useMarkersQuery(
+  baseOptions?: Apollo.QueryHookOptions<MarkersQuery, MarkersQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<MarkersQuery, MarkersQueryVariables>(
+    MarkersDocument,
+    options
+  );
+}
+export function useMarkersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<MarkersQuery, MarkersQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<MarkersQuery, MarkersQueryVariables>(
+    MarkersDocument,
+    options
+  );
+}
 export type MarkersQueryHookResult = ReturnType<typeof useMarkersQuery>;
 export type MarkersLazyQueryHookResult = ReturnType<typeof useMarkersLazyQuery>;
-export type MarkersQueryResult = Apollo.QueryResult<MarkersQuery, MarkersQueryVariables>;
+export type MarkersQueryResult = Apollo.QueryResult<
+  MarkersQuery,
+  MarkersQueryVariables
+>;
 export const MeDocument = gql`
-    query Me {
-  me {
-    ...RegularUser
+  query Me {
+    me {
+      ...RegularUser
+    }
   }
-}
-    ${RegularUserFragmentDoc}`;
+  ${RegularUserFragmentDoc}
+`;
 
 /**
  * __useMeQuery__
@@ -643,14 +799,18 @@ export const MeDocument = gql`
  *   },
  * });
  */
-export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-      }
-export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-        }
+export function useMeQuery(
+  baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+}
+export function useMeLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+}
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;

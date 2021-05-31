@@ -11,6 +11,8 @@ interface ButtonProps {
   align?: 'left' | 'right';
   mt?: number;
   mb?: number;
+  text?: boolean;
+  small?: boolean;
 }
 
 type ButtonTextProps = Pick<ButtonProps, 'outlined' | 'mt' | 'mb'>;
@@ -23,7 +25,7 @@ const StyledTouchableOpacity = styled.TouchableOpacity<ButtonProps>`
   border: ${(props) =>
     props.outlined ? `2px solid ${Colors.snuberRed}` : 'none'};
   border-radius: 10px;
-  height: 50px;
+  height: ${(props) => (props.small ? 30 : 50)}px;
   font-family: ${Fonts.PoppinsBold};
   padding: 0 10px;
   display: flex;
@@ -33,6 +35,11 @@ const StyledTouchableOpacity = styled.TouchableOpacity<ButtonProps>`
   margin-right: ${(props) => (props.align === 'left' ? 'auto' : 0)};
   margin-top: ${(props) => (props.mt ? props.mt : 0)}px;
   margin-bottom: ${(props) => (props.mb ? props.mb : 0)}px;
+`;
+
+const TextButton = styled.TouchableOpacity`
+  display: flex;
+  justify-content: center;
 `;
 
 const ButtonText = styled.Text<ButtonTextProps>`
@@ -49,11 +56,23 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   align,
   mt,
-  mb
+  mb,
+  text,
+  small
 }) => {
   const onDisabled = () => {};
+
+  if (text) {
+    return (
+      <TextButton onPress={disabled ? onDisabled : onPress}>
+        <ButtonText outlined>{children}</ButtonText>
+      </TextButton>
+    );
+  }
+
   return (
     <StyledTouchableOpacity
+      small={small}
       align={align}
       outlined={outlined}
       activeOpacity={disabled ? 1 : 0.8}

@@ -2,7 +2,7 @@ import React from 'react';
 import { Colors } from '../utils/styles/colors';
 import styled from 'styled-components/native';
 import { useIncomingFriendRequestsQuery } from '../generated/graphql';
-import { Text } from 'react-native';
+import { IncomingRequest } from './IncomingRequests';
 
 const RootContainer = styled.View`
   width: 100%;
@@ -19,23 +19,26 @@ const HeaderText = styled.Text`
   font-weight: 700;
 `;
 
+interface FriendProps {
+  lol?: boolean;
+}
+
 export const Friends: React.FC<FriendProps> = ({}) => {
-  const {
-    data: friendRequests,
-    loading: loadingFriendRequests
-  } = useIncomingFriendRequestsQuery({
-    fetchPolicy: 'network-only'
-  });
-  if (friendRequests?.incomingFriendRequests) {
-    console.log(friendRequests.incomingFriendRequests);
-  }
+  const { data: friendRequests, loading: loadingFriendRequests } =
+    useIncomingFriendRequestsQuery({
+      fetchPolicy: 'network-only'
+    });
+
   return (
     <RootContainer>
       <HeaderText>Vänner</HeaderText>
       {friendRequests?.incomingFriendRequests && (
         <FriendsContainer>
           {friendRequests.incomingFriendRequests.map((friendRequest) => (
-            <Text key={friendRequest.id}>{friendRequest.displayName}</Text>
+            <IncomingRequest
+              key={friendRequest.id}
+              friendRequest={friendRequest}
+            />
           ))}
         </FriendsContainer>
       )}

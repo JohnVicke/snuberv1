@@ -4,15 +4,14 @@ import { Colors } from '../utils/styles/colors';
 import styled from 'styled-components/native';
 import { Dimensions, TouchableOpacity } from 'react-native';
 import { EmergencyBtn } from './EmergencyBtn';
+import { bottomBarHeight } from '../utils/styles/constants';
 
 const RootContainer = styled.View`
   width: ${Dimensions.get('window').width}px;
-  background-color: ${Colors.darkBlue};
+  max-height: ${bottomBarHeight}px;
   flex: 1;
+  background-color: ${Colors.darkBlue};
   justify-content: center;
-  margin: auto 0;
-  align-items: center;
-  min-height: 60px;
 `;
 
 const Icons = styled.View`

@@ -65,7 +65,7 @@ export const Modal: React.FC<ModalProps> = ({
             width: '100%',
             height: fullSize ? '100%' : 'auto',
             backgroundColor: Colors.blue,
-            padding: 20
+            padding: 10
           }}
         >
           <HeaderContainer>

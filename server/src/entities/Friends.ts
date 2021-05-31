@@ -1,4 +1,4 @@
-import { Field, ObjectType, registerEnumType } from 'type-graphql';
+import { Field, Int, ObjectType, registerEnumType } from 'type-graphql';
 import {
   BaseEntity,
   Column,
@@ -20,7 +20,7 @@ registerEnumType(Status, { name: 'status' });
 @ObjectType()
 @Entity()
 export class Friends extends BaseEntity {
-  @Field()
+  @Field(() => Int)
   @PrimaryGeneratedColumn()
   id!: number;
 

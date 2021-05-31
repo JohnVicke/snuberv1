@@ -6,6 +6,7 @@ import {
   Arg,
   Ctx,
   Field,
+  Int,
   Mutation,
   ObjectType,
   Query,
@@ -34,6 +35,9 @@ class FriendRequestResponse {
 
   @Field()
   id: number;
+
+  @Field()
+  status: Status;
 }
 
 @Resolver(Friends)
@@ -61,12 +65,17 @@ export class FriendsResolver {
   @UseMiddleware(isAuth)
   async answerFriendRequest(
     @Arg('answer') answer: boolean,
-    @Arg('friendsId') id: number
+    @Arg('friendsId', () => Int) id: number
   ) {
     if (!answer) {
-      await Friends.delete(id);
+      await Friends.delete({ fromUserId: id });
     } else {
-      await Friends.update({ id }, { status: Status.ACCEPTED });
+      await getConnection()
+        .createQueryBuilder()
+        .update(Friends)
+        .set({ status: Status.ACCEPTED })
+        .where('"fromUserId" = :id', { id })
+        .execute();
     }
     // Failed successfully
     return true;
@@ -77,12 +86,11 @@ export class FriendsResolver {
   async incomingFriendRequests(
     @Ctx() { req }: SnuberContext
   ): Promise<FriendRequestResponse[]> {
-    console.log(req.session.userId);
     const replacements: any[] = [req.session.userId, Status.PENDING];
     const requests = await getConnection().query(
       `
-      select u."displayName", f."updatedAt", u.id from "user" as u
-      inner join "friends" as f
+      select f."updatedAt", f."status", u."id", u."displayName" from "user" as u
+      left join "friends" as f
       on f."toUserId" = $1 and f.status = $2
       `,
       replacements

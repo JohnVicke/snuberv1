@@ -1,0 +1,3 @@
+mutation AnswerFriendRequest($answer: Boolean!, $friendsId: Int!) {
+  answerFriendRequest(answer: $answer, friendsId: $friendsId)
+}
