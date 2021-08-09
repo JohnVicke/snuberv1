@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 
 import { SnuberMarker } from '../generated/graphql';
 import DosaPNG from '../assets/dosa.png';
+import { CustomCallout } from './CustomCallout';
 
 const MARKER_WIDTH = 24;
 const MARKER_HEIGHT = 24;
@@ -37,11 +38,12 @@ interface SnuberMarkerProps {
 }
 
 export const CustomMarker: React.FC<SnuberMarkerProps> = ({
-  marker: { latLng }
+  marker: { latLng, ...rest }
 }) => {
   return (
     <Marker coordinate={latLng} anchor={anchor} centerOffset={centerOffset}>
       <Dosa source={DosaPNG} />
+      <CustomCallout calloutData={rest} />
     </Marker>
   );
 };

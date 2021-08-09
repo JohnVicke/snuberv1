@@ -107,13 +107,15 @@ export const MapScreen: React.FC = ({}) => {
           ))}
       </Map>
 
-      <ProfileButton
-        friendRequests={
-          friendRequests?.incomingFriendRequests.length > 0 &&
-          friendRequests.incomingFriendRequests.length
-        }
-        openProfileModal={openModal('profile')}
-      />
+      {friendRequests?.incomingFriendRequests && (
+        <ProfileButton
+          friendRequests={
+            friendRequests?.incomingFriendRequests.length > 0 &&
+            friendRequests.incomingFriendRequests.length
+          }
+          openProfileModal={openModal('profile')}
+        />
+      )}
 
       {modalStatus.emergency.open && (
         <EmergancyModal

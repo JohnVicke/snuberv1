@@ -1,5 +1,4 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 import { Colors } from '../utils/styles/colors';
 import { Fonts } from '../utils/styles/fonts';
@@ -13,6 +12,7 @@ interface ButtonProps {
   mb?: number;
   text?: boolean;
   small?: boolean;
+  width?: number;
 }
 
 type ButtonTextProps = Pick<ButtonProps, 'outlined' | 'mt' | 'mb'>;
@@ -35,8 +35,8 @@ const StyledTouchableOpacity = styled.TouchableOpacity<ButtonProps>`
   margin-right: ${(props) => (props.align === 'left' ? 'auto' : 0)};
   margin-top: ${(props) => (props.mt ? props.mt : 0)}px;
   margin-bottom: ${(props) => (props.mb ? props.mb : 0)}px;
+  width: ${(props) => (props.width ? `${props.width}px` : 'auto')};
 `;
-
 const TextButton = styled.TouchableOpacity`
   display: flex;
   justify-content: center;
@@ -58,7 +58,8 @@ export const Button: React.FC<ButtonProps> = ({
   mt,
   mb,
   text,
-  small
+  small,
+  width
 }) => {
   const onDisabled = () => {};
 
@@ -79,6 +80,7 @@ export const Button: React.FC<ButtonProps> = ({
       onPress={disabled ? onDisabled : onPress}
       mt={mt}
       mb={mb}
+      width={width}
     >
       <ButtonText outlined={outlined}>{children}</ButtonText>
     </StyledTouchableOpacity>
