@@ -45,7 +45,7 @@ const Snus = styled.Text`
 `;
 
 interface IncomingRequestsProps {
-  friendRequest: FriendRequestResponse;
+  friendRequest: Omit<FriendRequestResponse, 'status'>;
 }
 
 export const IncomingRequest: React.FC<IncomingRequestsProps> = ({

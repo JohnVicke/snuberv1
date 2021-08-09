@@ -33,8 +33,8 @@ import { FriendsResolver } from './resolvers/friends';
     entities: [User, Post, Updoot, Marker, Friends],
     migrations: [path.join(__dirname, './migrations/*')]
   });
-  //await connection.runMigrations();
-  //await Post.delete({});
+  // await connection.runMigrations();
+  // await Post.delete({});
 
   const app = express();
 

@@ -1,7 +1,10 @@
 import React from 'react';
 import { Colors } from '../utils/styles/colors';
 import styled from 'styled-components/native';
-import { useIncomingFriendRequestsQuery } from '../generated/graphql';
+import {
+  useFriendsQuery,
+  useIncomingFriendRequestsQuery
+} from '../generated/graphql';
 import { IncomingRequest } from './IncomingRequests';
 
 const RootContainer = styled.View`
@@ -28,6 +31,10 @@ export const Friends: React.FC<FriendProps> = ({}) => {
     useIncomingFriendRequestsQuery({
       fetchPolicy: 'network-only'
     });
+
+  const { data: friends, loading: friendsLoading } = useFriendsQuery({
+    fetchPolicy: 'network-only'
+  });
 
   return (
     <RootContainer>

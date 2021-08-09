@@ -1,0 +1,6 @@
+query Friends {
+  friends {
+    id
+    displayName
+  }
+}

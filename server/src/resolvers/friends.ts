@@ -86,23 +86,40 @@ export class FriendsResolver {
     @Ctx() { req }: SnuberContext
   ): Promise<FriendRequestResponse[]> {
     const replacements: any[] = [req.session.userId, Status.PENDING];
-    // TODO fix: sends all friend requests in the database....
-    const requests = await getConnection().query(
+    const incomingRequests = await getConnection().query(
       `
-      select f."updatedAt", f."status", u."id", u."displayName" from "user" as u
-      left join "friends" as f
-      on f."toUserId" = $1 and f.status = $2
+      select * from "friends" as f
+        inner join "user" as u
+        on u.id = f."fromUserId"
+      where f."toUserId" = $1 and f.status = $2
       `,
       replacements
     );
-    return requests;
+    return incomingRequests;
+  }
+
+  @Query(() => [FriendRequestResponse])
+  @UseMiddleware(isAuth)
+  async outgoingFriendRequests(
+    @Ctx() { req }: SnuberContext
+  ): Promise<FriendRequestResponse[]> {
+    const replacements: any[] = [req.session.userId, Status.PENDING];
+    const outgoingRequests = await getConnection().query(
+      `
+      select * from "friends" as f
+        inner join "user" as u
+        on u.id = f."toUserId"
+      where f."fromUserId" = $1 and f.status = $2
+      `,
+      replacements
+    );
+    return outgoingRequests;
   }
 
   @Query(() => [Friend])
   @UseMiddleware(isAuth)
   async friends(@Ctx() { req }: SnuberContext): Promise<Friend[]> {
     const replacements: any[] = [req.session.userId, Status.ACCEPTED];
-    console.log(req.session.userId);
     const friends = await getConnection().query(
       `
       select "displayName", "id" from "user" where id in 
