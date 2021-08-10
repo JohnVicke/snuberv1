@@ -1,5 +1,6 @@
 import { UserInput } from 'src/resolvers/UserInput';
 
+// TODO: Needs better validation. This is currently 'purely' for functionality testing
 export const validateRegister = (options: UserInput) => {
   const { username, password, email } = options;
   if (username.length < 3) {
