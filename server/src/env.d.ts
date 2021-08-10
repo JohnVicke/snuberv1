@@ -6,7 +6,9 @@ declare namespace NodeJS {
     NODE_ENV: string;
     REDIS_SECRET: string;
     CORS_ORIGIN: string;
-    SNAPCHAT_CLIENT_ID: string;
-    SNAPCHAT_CLIENT_SECRET: string;
+    AWS_ACCESS_KEY_ID: string;
+    AWS_SECRET_ACCESS_KEY: string;
+    AWS_S3_BUCKET_NAME: string;
+    AWS_S3_BUCKET_REGION: string;
   }
 }

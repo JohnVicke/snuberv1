@@ -65,7 +65,8 @@ export class FriendsResolver {
   @UseMiddleware(isAuth)
   async answerFriendRequest(
     @Arg('answer') answer: boolean,
-    @Arg('friendsId', () => Int) id: number
+    @Arg('friendsId', () => Int) id: number,
+    @Ctx() { req }: SnuberContext
   ) {
     if (!answer) {
       await Friends.delete({ fromUserId: id });
@@ -75,6 +76,7 @@ export class FriendsResolver {
         .update(Friends)
         .set({ status: Status.ACCEPTED })
         .where('"fromUserId" = :id', { id })
+        .andWhere('"toUserId" = :id', { id: req.session.userId })
         .execute();
     }
     return true;

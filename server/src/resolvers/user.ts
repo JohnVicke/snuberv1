@@ -1,4 +1,6 @@
-import { User } from '../entities/User';
+import argon2 from 'argon2';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
+import { uploadImage } from '../utils/s3';
 import { SnuberContext } from 'src/types';
 import {
   Arg,
@@ -11,13 +13,14 @@ import {
   Resolver,
   Root
 } from 'type-graphql';
-import argon2 from 'argon2';
-import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from '../constants';
-import { UserInput } from './UserInput';
-import { validateRegister } from '../utils/validateRegister';
-import { sendEmail } from '../utils/sendEmail';
-import { v4 } from 'uuid';
 import { getConnection } from 'typeorm';
+import { v4 } from 'uuid';
+
+import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from '../constants';
+import { User } from '../entities/User';
+import { sendEmail } from '../utils/sendEmail';
+import { validateRegister } from '../utils/validateRegister';
+import { UserInput } from './UserInput';
 
 @ObjectType()
 class FieldError {
@@ -234,5 +237,17 @@ export class UserResolver {
         resolve(true);
       })
     );
+  }
+
+  @Mutation(() => Boolean)
+  async testUpoadFile(
+    @Ctx() { req }: SnuberContext,
+    @Arg('file', () => GraphQLUpload)
+    file: FileUpload
+  ) {
+    const { Location } = await uploadImage(file);
+    return {
+      Location
+    };
   }
 }

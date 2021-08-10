@@ -3,6 +3,8 @@ import 'dotenv-safe/config';
 import { createConnection } from 'typeorm';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
+import { graphqlUploadExpress } from 'graphql-upload';
+
 import express from 'express';
 import Redis from 'ioredis';
 import session from 'express-session';
@@ -68,7 +70,11 @@ import { FriendsResolver } from './resolvers/friends';
       resave: false
     })
   );
+
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+
   const apolloServer = new ApolloServer({
+    uploads: false,
     schema: await buildSchema({
       resolvers: [MarkerResolver, UserResolver, PostResolver, FriendsResolver],
       validate: false
