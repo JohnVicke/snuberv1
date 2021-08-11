@@ -2,8 +2,8 @@ import React from 'react';
 import { Marker } from 'react-native-maps';
 import styled from 'styled-components/native';
 
-import { SnuberMarker } from '../generated/graphql';
-import DosaPNG from '../assets/dosa.png';
+import { SnuberMarker } from '../../generated/graphql';
+import DosaPNG from '../../assets/dosa.png';
 import { CustomCallout } from './CustomCallout';
 
 const MARKER_WIDTH = 24;

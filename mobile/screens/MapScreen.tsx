@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { Dimensions, View } from 'react-native';
 import MapView, { Region } from 'react-native-maps';
 import styled from 'styled-components/native';
-import { AddFriendModal } from '../components/AddFriendModal';
+import { AddFriendModal } from '../components/modals/AddFriendModal';
 import { BottomBar } from '../components/BottomBar';
-import { CustomMarker } from '../components/CustomMarker';
-import { EmergancyModal } from '../components/EmergencyModal';
+import { CustomMarker } from '../components/map/CustomMarker';
+import { EmergancyModal } from '../components/modals/EmergencyModal';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { Profile } from '../components/Profile';
+import { Profile } from '../components/modals/ProfileModal';
 import { ProfileButton } from '../components/ProfileButton';
 import {
   SnuberMarker,

@@ -3,8 +3,8 @@ import Icon from 'react-native-vector-icons/Feather';
 import styled from 'styled-components/native';
 import { animated, useSpring } from 'react-spring';
 
-import { Colors } from '../utils/styles/colors';
-import { Fonts } from '../utils/styles/fonts';
+import { Colors } from '../../utils/styles/colors';
+import { Fonts } from '../../utils/styles/fonts';
 import { Dimensions, TouchableWithoutFeedback, View } from 'react-native';
 
 const marginBottom = '10px';

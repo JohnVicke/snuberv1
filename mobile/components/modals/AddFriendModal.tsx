@@ -1,10 +1,10 @@
 import React from 'react';
-import { ErrorMessage, Formik } from 'formik';
-import { View, Text } from 'react-native';
-import { Button } from './Button';
+import { Formik } from 'formik';
+import { View } from 'react-native';
+import { Button } from '../Button';
 import { Modal } from './Modal';
-import { TextField } from './TextField';
-import { useSendFriendRequestMutation } from '../generated/graphql';
+import { TextField } from '../TextField';
+import { useSendFriendRequestMutation } from '../../generated/graphql';
 
 interface AddFriendModalProps {
   close(): void;

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Modal } from './Modal';
-import { Friends } from './Friends';
-import { Button } from './Button';
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import { Friends } from '../Friends';
+import { Button } from '../Button';
+import { useLogoutMutation, useMeQuery } from '../../generated/graphql';
 import { useApolloClient } from '@apollo/client';
 import styled from 'styled-components/native';
 import { Dimensions } from 'react-native';
-import { Fonts } from '../utils/styles/fonts';
-import { Colors } from '../utils/styles/colors';
+import { Fonts } from '../../utils/styles/fonts';
+import { Colors } from '../../utils/styles/colors';
 
 const ModalContent = styled.View`
   display: flex;

@@ -1,16 +1,16 @@
 import { launchCameraAsync, MediaTypeOptions } from 'expo-image-picker';
 import React, { useState } from 'react';
-import { Dimensions, View } from 'react-native';
+import { View } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import styled from 'styled-components/native';
 import { Formik } from 'formik';
 
-import { Colors } from '../utils/styles/colors';
-import { Fonts } from '../utils/styles/fonts';
+import { Colors } from '../../utils/styles/colors';
+import { Fonts } from '../../utils/styles/fonts';
 import { Modal } from './Modal';
-import { TextField } from './TextField';
-import { Button } from './Button';
-import { MarkersQuery, useCreateMarkerMutation } from '../generated/graphql';
+import { TextField } from '../TextField';
+import { Button } from '../Button';
+import { MarkersQuery, useCreateMarkerMutation } from '../../generated/graphql';
 import { gql } from '@apollo/client';
 
 const marginBottom = '10px';
