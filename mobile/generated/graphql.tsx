@@ -14,6 +14,8 @@ export type Scalars = {
   Float: number;
   /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
   DateTime: any;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
 };
 
 
@@ -84,6 +86,8 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  updateUser: UserResponse;
+  hardCodeInsert: Scalars['Boolean'];
   createMarker: MarkerResponse;
   removeMarker: Scalars['Boolean'];
   sendFriendRequest: Scalars['Boolean'];
@@ -132,6 +136,11 @@ export type MutationRegisterArgs = {
 export type MutationLoginArgs = {
   password: Scalars['String'];
   usernameOrEmail: Scalars['String'];
+};
+
+
+export type MutationUpdateUserArgs = {
+  input: UserInput;
 };
 
 
@@ -206,11 +215,13 @@ export type SnuberMarker = {
   updatedAt: Scalars['DateTime'];
 };
 
+
 export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
   username: Scalars['String'];
   displayName: Scalars['String'];
+  avatarId: Scalars['String'];
   email: Scalars['String'];
   password: Scalars['String'];
   markers: Array<Marker>;
@@ -224,6 +235,7 @@ export type UserInput = {
   password: Scalars['String'];
   displayName?: Maybe<Scalars['String']>;
   email: Scalars['String'];
+  file?: Maybe<Scalars['Upload']>;
 };
 
 export type UserResponse = {
@@ -369,7 +381,7 @@ export type MeQuery = (
   { __typename?: 'Query' }
   & { me?: Maybe<(
     { __typename?: 'User' }
-    & RegularUserFragment
+    & Pick<User, 'username' | 'avatarId' | 'id'>
   )> }
 );
 
@@ -714,10 +726,12 @@ export type MarkersQueryResult = Apollo.QueryResult<MarkersQuery, MarkersQueryVa
 export const MeDocument = gql`
     query Me {
   me {
-    ...RegularUser
+    username
+    avatarId
+    id
   }
 }
-    ${RegularUserFragmentDoc}`;
+    `;
 
 /**
  * __useMeQuery__

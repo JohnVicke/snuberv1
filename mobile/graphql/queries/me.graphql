@@ -1,5 +1,7 @@
 query Me {
   me {
-    ...RegularUser
+    username
+    avatarId
+    id
   }
 }
