@@ -1,4 +1,5 @@
 import argon2 from 'argon2';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import { SnuberContext } from 'src/types';
 import {
   Arg,
@@ -270,12 +271,5 @@ export class UserResolver {
     });
 
     return { user };
-  }
-
-  @Mutation(() => Boolean)
-  async hardCodeInsert(@Ctx() { req }: SnuberContext) {
-    if (req.session.userId) {
-    }
-    return true;
   }
 }

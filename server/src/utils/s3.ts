@@ -10,6 +10,7 @@ export type AWSConfig = {
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
+  signatureVersion: string;
 };
 
 export class S3FileManager {
@@ -31,5 +32,12 @@ export class S3FileManager {
       ContentType: mimetype
     };
     return this.S3.upload(params).promise();
+  }
+
+  getSignedUrl(Key: string) {
+    return this.S3.getSignedUrlPromise('getObject', {
+      Bucket: this.config.Bucket,
+      Key
+    });
   }
 }

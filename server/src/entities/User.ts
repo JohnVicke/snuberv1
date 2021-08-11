@@ -33,6 +33,10 @@ export class User extends BaseEntity {
   avatarId?: string;
 
   @Field()
+  @Column({ nullable: true })
+  avatarSignedUrl?: string;
+
+  @Field()
   @Column({ unique: true })
   email!: string;
 

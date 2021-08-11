@@ -47,8 +47,11 @@ import { S3FileManager } from './utils/s3';
 
   const app = express();
 
+  const s3 = new S3FileManager(AWS_S3_UPLOAD_CONFIG);
+
   const RedisStore = connectRedis(session);
   const redis = new Redis(process.env.REDIS_URL);
+
   // nginx proxy
   app.set('proxy', 1);
 
@@ -91,7 +94,7 @@ import { S3FileManager } from './utils/s3';
       req,
       res,
       redis,
-      s3: new S3FileManager(AWS_S3_UPLOAD_CONFIG),
+      s3,
       userLoader: createUserLoader(),
       updootLoader: createUpdootLoader()
     })
