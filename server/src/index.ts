@@ -42,8 +42,8 @@ import { S3FileManager } from './utils/s3';
     entities: [User, Post, Updoot, Marker, Friends],
     migrations: [path.join(__dirname, './migrations/*')]
   });
+
   // await connection.runMigrations();
-  // await Post.delete({});
 
   const app = express();
 
@@ -100,8 +100,9 @@ import { S3FileManager } from './utils/s3';
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(typeof PORT === 'string' ? parseInt(PORT) : PORT, () => {
-    console.log(`server started on port:${PORT}`);
+    console.log(`server started on port:${PORT}🚀`);
   });
 })().catch((error) => {
+  // TODO: Improve server logging
   console.error(error);
 });
