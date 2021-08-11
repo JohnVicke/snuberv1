@@ -45,11 +45,15 @@ export const Profile: React.FC<ProfileProps> = ({ close }) => {
     await apolloClient.resetStore();
   };
 
+  // TODO: Remove AWS sdk from mobile dependencies completely
+  // In global.d.ts and from yarn
+
   return (
     <Modal title="Profil" close={close} fullSize>
       <ModalContent>
         <AvatarSection>
-          <DisplayName>{meData?.me?.avatarId}</DisplayName>
+          <DisplayName>{meData?.me?.username}</DisplayName>
+          <Avatar source={{ uri: meData?.me?.avatarSignedUrl }} />
         </AvatarSection>
         <Friends />
         <Button onPress={handleOnPress}>Logga ut</Button>

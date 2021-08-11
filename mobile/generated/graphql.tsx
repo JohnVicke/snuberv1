@@ -144,6 +144,11 @@ export type MutationUpdateUserArgs = {
 };
 
 
+export type MutationHardCodeInsertArgs = {
+  file: Scalars['Upload'];
+};
+
+
 export type MutationCreateMarkerArgs = {
   options: MarkerInput;
 };
@@ -222,6 +227,7 @@ export type User = {
   username: Scalars['String'];
   displayName: Scalars['String'];
   avatarId: Scalars['String'];
+  avatarSignedUrl: Scalars['String'];
   email: Scalars['String'];
   password: Scalars['String'];
   markers: Array<Marker>;
@@ -381,7 +387,7 @@ export type MeQuery = (
   { __typename?: 'Query' }
   & { me?: Maybe<(
     { __typename?: 'User' }
-    & Pick<User, 'username' | 'avatarId' | 'id'>
+    & Pick<User, 'username' | 'avatarId' | 'avatarSignedUrl' | 'id'>
   )> }
 );
 
@@ -728,6 +734,7 @@ export const MeDocument = gql`
   me {
     username
     avatarId
+    avatarSignedUrl
     id
   }
 }
