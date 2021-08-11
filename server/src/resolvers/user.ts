@@ -1,6 +1,4 @@
 import argon2 from 'argon2';
-import { FileUpload, GraphQLUpload } from 'graphql-upload';
-import { uploadImage } from '../utils/s3';
 import { SnuberContext } from 'src/types';
 import {
   Arg,
@@ -133,16 +131,17 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg('input') userInput: UserInput,
-    @Ctx() { req }: SnuberContext
+    @Ctx() { req, s3 }: SnuberContext
   ): Promise<UserResponse> {
-    const { username, password, displayName, email } = userInput;
+    const { username, password, displayName, email, file } = userInput;
     const errors = validateRegister(userInput);
     if (errors) return { errors };
 
     const hashedPassword = await argon2.hash(password);
 
-    let user;
+    let user, avatarId;
     try {
+      if (file) avatarId = (await s3.uploadImage(file)).Location;
       const result = await getConnection()
         .createQueryBuilder()
         .insert()
@@ -151,7 +150,8 @@ export class UserResolver {
           username,
           password: hashedPassword,
           displayName: displayName,
-          email
+          email,
+          avatarId
         })
         .returning('*')
         .execute();
@@ -239,15 +239,43 @@ export class UserResolver {
     );
   }
 
-  @Mutation(() => Boolean)
-  async testUpoadFile(
-    @Ctx() { req }: SnuberContext,
-    @Arg('file', () => GraphQLUpload)
-    file: FileUpload
+  @Mutation(() => UserResponse)
+  async updateUser(
+    @Ctx() { req, s3 }: SnuberContext,
+    @Arg('input') userInput: UserInput
   ) {
-    const { Location } = await uploadImage(file);
-    return {
-      Location
-    };
+    if (!req.session.userId) return null;
+    const errors = validateRegister(userInput);
+    const { file } = userInput;
+    if (errors) return errors;
+
+    let avatarId;
+    if (file) {
+      /*
+      TODO: Remove old image from S3 Bucket when provided with a new one
+
+      if new image succeeded to upload:
+        remove old image
+        replace id with old image
+      else:
+        give error message to user
+      */
+
+      avatarId = (await s3.uploadImage(file)).Location;
+    }
+
+    const user = await User.update(req.session.userId, {
+      ...userInput,
+      avatarId: avatarId
+    });
+
+    return { user };
+  }
+
+  @Mutation(() => Boolean)
+  async hardCodeInsert(@Ctx() { req }: SnuberContext) {
+    if (req.session.userId) {
+    }
+    return true;
   }
 }

@@ -5,37 +5,31 @@ import { FileUpload } from 'graphql-upload';
 import { v4 } from 'uuid';
 import { extname } from 'path';
 
-const uploadConfig = {
-  Bucket: process.env.AWS_S3_BUCKET_NAME,
-  region: process.env.AWS_S3_BUCKET_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+export type AWSConfig = {
+  Bucket: string;
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
 };
 
-AWS.config.update(uploadConfig);
+export class S3FileManager {
+  private S3: AWS.S3;
+  private config: AWSConfig;
 
-const s3 = new AWS.S3();
+  constructor(config: AWSConfig) {
+    AWS.config.update(config);
+    this.S3 = new AWS.S3();
+    this.config = config;
+  }
 
-export const uploadImage = ({
-  createReadStream,
-  filename,
-  mimetype
-}: FileUpload) => {
-  const uploadParams: PutObjectRequest = {
-    Bucket: uploadConfig.Bucket,
-    Body: createReadStream(),
-    Key: `${v4()}${extname(filename)}`,
-    ContentType: mimetype
-  };
-
-  return s3.upload(uploadParams).promise();
-};
-
-export const getImage = (Key: string) => {
-  return s3
-    .getObject({
-      Bucket: uploadConfig.Bucket,
-      Key
-    })
-    .promise();
-};
+  uploadImage(file: FileUpload): Promise<AWS.S3.ManagedUpload.SendData> {
+    const { createReadStream, filename, mimetype } = file;
+    const params: PutObjectRequest = {
+      Bucket: this.config.Bucket,
+      Body: createReadStream(),
+      Key: `snuber-${v4()}${extname(filename)}`,
+      ContentType: mimetype
+    };
+    return this.S3.upload(params).promise();
+  }
+}

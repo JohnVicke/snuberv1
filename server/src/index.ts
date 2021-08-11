@@ -12,7 +12,13 @@ import connectRedis from 'connect-redis';
 import cors from 'cors';
 import path from 'path';
 
-import { __prod__, PORT, REDIS_SECRET, COOKIE_NAME } from './constants';
+import {
+  __prod__,
+  PORT,
+  REDIS_SECRET,
+  COOKIE_NAME,
+  AWS_S3_UPLOAD_CONFIG
+} from './constants';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { MarkerResolver } from './resolvers/marker';
@@ -25,6 +31,7 @@ import { Marker } from './entities/Marker';
 import { Updoot } from './entities/Updoot';
 import { Friends } from './entities/Friends';
 import { FriendsResolver } from './resolvers/friends';
+import { S3FileManager } from './utils/s3';
 
 (async () => {
   await createConnection({
@@ -71,7 +78,7 @@ import { FriendsResolver } from './resolvers/friends';
     })
   );
 
-  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 1 }));
 
   const apolloServer = new ApolloServer({
     uploads: false,
@@ -84,6 +91,7 @@ import { FriendsResolver } from './resolvers/friends';
       req,
       res,
       redis,
+      s3: new S3FileManager(AWS_S3_UPLOAD_CONFIG),
       userLoader: createUserLoader(),
       updootLoader: createUpdootLoader()
     })

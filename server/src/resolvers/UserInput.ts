@@ -1,3 +1,4 @@
+import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { Field, InputType } from 'type-graphql';
 
 @InputType()
@@ -13,4 +14,7 @@ export class UserInput {
 
   @Field()
   email: string;
+
+  @Field(() => GraphQLUpload, { nullable: true })
+  file?: FileUpload;
 }

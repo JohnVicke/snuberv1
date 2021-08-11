@@ -29,8 +29,8 @@ export class User extends BaseEntity {
   displayName!: string;
 
   @Field()
-  @Column()
-  avatar: string;
+  @Column({ nullable: true })
+  avatarId?: string;
 
   @Field()
   @Column({ unique: true })
