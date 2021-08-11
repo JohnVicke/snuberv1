@@ -6,13 +6,7 @@ import { useLoginMutation } from '../generated/graphql';
 import { Colors } from '../utils/styles/colors';
 import { Formik } from 'formik';
 import { View } from 'react-native';
-import { space } from '../utils/styles/space';
 import { TextField } from '../components/TextField';
-
-// TODO: FIX THIS SHIT
-const ThisIsNotVeryGood = styled.View`
-  ${space}
-`;
 
 const LoginContainer = styled.View`
   flex: 1;
