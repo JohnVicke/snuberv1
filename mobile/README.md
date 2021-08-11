@@ -8,4 +8,5 @@
 ## How to run
 
 ```
+yarn
 expo start
