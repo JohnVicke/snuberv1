@@ -30,6 +30,14 @@ export class Marker extends BaseEntity {
   title!: string;
 
   @Field()
+  @Column({ nullable: true })
+  imageId?: string;
+
+  @Field()
+  @Column({ nullable: true })
+  imageSignedUrl?: string;
+
+  @Field()
   @Column()
   creatorId: number;
 
