@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import Icon from 'react-native-vector-icons/Feather';
 import { Colors } from '../utils/styles/colors';
+import { useMeQuery } from '../generated/graphql';
+import { Avatar } from './styled-components/Avatar';
 
-const RootView = styled.View`
+const RootView = styled.TouchableOpacity`
   position: absolute;
   top: 10px;
   right: 10px;
@@ -50,8 +51,9 @@ export const ProfileButton: React.FC<ProfileButtonProps> = ({
   friendRequests,
   openProfileModal
 }) => {
+  const { data } = useMeQuery();
   return (
-    <RootView>
+    <RootView onPress={openProfileModal}>
       <Border>
         {friendRequests && (
           <FriendRequestNotification>
@@ -60,12 +62,7 @@ export const ProfileButton: React.FC<ProfileButtonProps> = ({
             </FriendRequestText>
           </FriendRequestNotification>
         )}
-        <Icon
-          onPress={openProfileModal}
-          name="user"
-          size={24}
-          color={Colors.white}
-        />
+        <Avatar source={{ uri: data?.me?.avatarSignedUrl }} />
       </Border>
     </RootView>
   );
