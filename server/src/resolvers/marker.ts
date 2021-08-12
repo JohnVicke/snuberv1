@@ -13,6 +13,7 @@ import {
   Resolver,
   UseMiddleware
 } from 'type-graphql';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
 
 @InputType()
 class MarkerInput {
@@ -24,6 +25,9 @@ class MarkerInput {
 
   @Field()
   title: string;
+
+  @Field(() => GraphQLUpload)
+  image?: FileUpload;
 }
 
 @ObjectType()
@@ -82,7 +86,21 @@ export class MarkerResolver {
     const userHasMarker = await Marker.findOne({
       creatorId: req.session.userId
     });
-    if (userHasMarker) {
+
+    console.log(options);
+
+    if (!userHasMarker) {
+      return {
+        errors: [
+          {
+            type: 'already_exists',
+            message: 'Du har redan ett nödanrop uppe idiot!'
+          }
+        ]
+      };
+    }
+
+    if (!!userHasMarker) {
       return {
         errors: [
           {
