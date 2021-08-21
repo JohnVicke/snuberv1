@@ -1,6 +1,7 @@
 import { launchCameraAsync, MediaTypeOptions } from 'expo-image-picker';
+import { ReactNativeFile } from 'apollo-upload-client';
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import styled from 'styled-components/native';
 import { Formik } from 'formik';
@@ -71,9 +72,7 @@ export const EmergancyModal: React.FC<EmergencyModalProps> = ({
   latitude,
   longitude
 }) => {
-  const [reason, setReason] = useState('');
   const [image, setImage] = useState<string | undefined>(undefined);
-  const onChangeReason = (text: string) => setReason(text);
 
   const [addMarker] = useCreateMarkerMutation({
     update(cache, { data }) {
@@ -114,11 +113,20 @@ export const EmergancyModal: React.FC<EmergencyModalProps> = ({
           const marker = {
             latitude,
             longitude,
-            title: values.title
+            title: values.title,
+            image:
+              image &&
+              new ReactNativeFile({
+                uri: image,
+                name: 'name.jpg',
+                type: 'image/jpeg'
+              })
           };
-          const res = await addMarker({
+
+          await addMarker({
             variables: marker
           });
+
           close();
         }}
       >

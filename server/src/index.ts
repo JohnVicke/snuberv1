@@ -38,7 +38,7 @@ import { S3FileManager } from './utils/s3';
     type: 'postgres',
     url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: false,
+    synchronize: true,
     entities: [User, Post, Updoot, Marker, Friends],
     migrations: [path.join(__dirname, './migrations/*')]
   });

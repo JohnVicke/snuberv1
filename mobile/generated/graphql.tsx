@@ -51,6 +51,8 @@ export type Marker = {
   latitude: Scalars['Float'];
   longitude: Scalars['Float'];
   title: Scalars['String'];
+  imageId: Scalars['String'];
+  imageSignedUrl: Scalars['String'];
   creatorId: Scalars['Float'];
   creator: User;
   createdAt: Scalars['String'];
@@ -67,6 +69,7 @@ export type MarkerInput = {
   latitude: Scalars['Float'];
   longitude: Scalars['Float'];
   title: Scalars['String'];
+  image?: Maybe<Scalars['Upload']>;
 };
 
 export type MarkerResponse = {
@@ -87,7 +90,6 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   updateUser: UserResponse;
-  hardCodeInsert: Scalars['Boolean'];
   createMarker: MarkerResponse;
   removeMarker: Scalars['Boolean'];
   sendFriendRequest: Scalars['Boolean'];
@@ -141,11 +143,6 @@ export type MutationLoginArgs = {
 
 export type MutationUpdateUserArgs = {
   input: UserInput;
-};
-
-
-export type MutationHardCodeInsertArgs = {
-  file: Scalars['Upload'];
 };
 
 
@@ -286,6 +283,7 @@ export type CreateMarkerMutationVariables = Exact<{
   title: Scalars['String'];
   latitude: Scalars['Float'];
   longitude: Scalars['Float'];
+  image?: Maybe<Scalars['Upload']>;
 }>;
 
 
@@ -447,9 +445,9 @@ export type AnswerFriendRequestMutationHookResult = ReturnType<typeof useAnswerF
 export type AnswerFriendRequestMutationResult = Apollo.MutationResult<AnswerFriendRequestMutation>;
 export type AnswerFriendRequestMutationOptions = Apollo.BaseMutationOptions<AnswerFriendRequestMutation, AnswerFriendRequestMutationVariables>;
 export const CreateMarkerDocument = gql`
-    mutation CreateMarker($title: String!, $latitude: Float!, $longitude: Float!) {
+    mutation CreateMarker($title: String!, $latitude: Float!, $longitude: Float!, $image: Upload) {
   createMarker(
-    options: {title: $title, latitude: $latitude, longitude: $longitude}
+    options: {title: $title, latitude: $latitude, longitude: $longitude, image: $image}
   ) {
     marker {
       latitude
@@ -482,6 +480,7 @@ export type CreateMarkerMutationFn = Apollo.MutationFunction<CreateMarkerMutatio
  *      title: // value for 'title'
  *      latitude: // value for 'latitude'
  *      longitude: // value for 'longitude'
+ *      image: // value for 'image'
  *   },
  * });
  */

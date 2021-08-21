@@ -26,8 +26,8 @@ class MarkerInput {
   @Field()
   title: string;
 
-  @Field(() => GraphQLUpload)
-  image?: FileUpload;
+  @Field(() => GraphQLUpload, { nullable: true })
+  image: FileUpload;
 }
 
 @ObjectType()
@@ -80,25 +80,12 @@ export class MarkerResolver {
   @Mutation(() => MarkerResponse)
   @UseMiddleware(isAuth)
   async createMarker(
-    @Arg('options') options: MarkerInput,
-    @Ctx() { req }: SnuberContext
+    @Arg('options') { image, ...options }: MarkerInput,
+    @Ctx() { req, s3 }: SnuberContext
   ): Promise<MarkerResponse> {
     const userHasMarker = await Marker.findOne({
       creatorId: req.session.userId
     });
-
-    console.log(options);
-
-    if (!userHasMarker) {
-      return {
-        errors: [
-          {
-            type: 'already_exists',
-            message: 'Du har redan ett nödanrop uppe idiot!'
-          }
-        ]
-      };
-    }
 
     if (!!userHasMarker) {
       return {
@@ -111,9 +98,16 @@ export class MarkerResolver {
       };
     }
 
+    let imageSignedUrl;
+
+    if (image) {
+      imageSignedUrl = (await s3.uploadImage(await image)).Location;
+    }
+
     const marker = await Marker.create({
       ...options,
-      creatorId: req.session.userId
+      creatorId: req.session.userId,
+      imageSignedUrl
     }).save();
 
     return { marker };

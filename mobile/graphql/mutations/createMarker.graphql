@@ -1,6 +1,16 @@
-mutation CreateMarker($title: String!, $latitude: Float!, $longitude: Float!) {
+mutation CreateMarker(
+  $title: String!
+  $latitude: Float!
+  $longitude: Float!
+  $image: Upload
+) {
   createMarker(
-    options: { title: $title, latitude: $latitude, longitude: $longitude }
+    options: {
+      title: $title
+      latitude: $latitude
+      longitude: $longitude
+      image: $image
+    }
   ) {
     marker {
       latitude

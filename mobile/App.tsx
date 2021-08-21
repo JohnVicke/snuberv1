@@ -18,8 +18,8 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   ApolloClient,
+  ApolloLink,
   ApolloProvider,
-  createHttpLink,
   InMemoryCache
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
@@ -30,6 +30,8 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthenticationSwitch } from './navigation/AuthenticationSwitch';
 import { navigationRef } from './navigation/RootNavigation';
 import { Colors } from './utils/styles/colors';
+import { onError } from '@apollo/client/link/error';
+import { createUploadLink } from 'apollo-upload-client';
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -41,11 +43,14 @@ const cache = new InMemoryCache({
     }
   }
 });
+
+const errorLink = onError(({ graphQLErrors }) => {
+  if (graphQLErrors) graphQLErrors.map(({ message }) => console.error(message));
+});
+
 const uri = 'http://192.168.1.215:42069/graphql';
 
-const httpLink = createHttpLink({
-  uri
-});
+const uploadLink = createUploadLink({ uri });
 
 const authLink = setContext((_, { headers }) => {
   const token = AsyncStorage.getItem('token');
@@ -58,7 +63,11 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const apolloClient = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: ApolloLink.from([
+    errorLink,
+    authLink,
+    uploadLink as unknown as ApolloLink
+  ]),
   credentials: 'include',
   cache
 });
@@ -82,13 +91,11 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      const {
-        status: locationStatus
-      } = await requestForegroundPermissionsAsync();
+      const { status: locationStatus } =
+        await requestForegroundPermissionsAsync();
       const serviceEnabled = await hasServicesEnabledAsync();
-      const {
-        status: imagePickerStatus
-      } = await requestMediaLibraryPermissionsAsync();
+      const { status: imagePickerStatus } =
+        await requestMediaLibraryPermissionsAsync();
       if (imagePickerStatus !== 'granted') {
         alert('Sorry, we need camera roll permissions to make this work!');
       }
