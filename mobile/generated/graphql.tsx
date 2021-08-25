@@ -215,6 +215,7 @@ export type SnuberMarker = {
   title: Scalars['String'];
   latLng: LatLng;
   updatedAt: Scalars['DateTime'];
+  imageSignedUrl?: Maybe<Scalars['String']>;
 };
 
 
@@ -370,7 +371,7 @@ export type MarkersQuery = (
   { __typename?: 'Query' }
   & { markers: Array<(
     { __typename?: 'SnuberMarker' }
-    & Pick<SnuberMarker, 'title' | 'updatedAt' | 'creatorId' | 'id'>
+    & Pick<SnuberMarker, 'title' | 'updatedAt' | 'creatorId' | 'id' | 'imageSignedUrl'>
     & { latLng: (
       { __typename?: 'LatLng' }
       & Pick<LatLng, 'latitude' | 'longitude'>
@@ -698,6 +699,7 @@ export const MarkersDocument = gql`
     updatedAt
     creatorId
     id
+    imageSignedUrl
   }
 }
     `;

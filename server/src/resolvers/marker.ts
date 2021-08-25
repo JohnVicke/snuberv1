@@ -64,6 +64,9 @@ class SnuberMarker {
 
   @Field(() => Date)
   updatedAt: Date;
+
+  @Field({ nullable: true })
+  imageSignedUrl?: string;
 }
 
 @ObjectType()
@@ -98,10 +101,10 @@ export class MarkerResolver {
       };
     }
 
-    let imageSignedUrl;
-
+    let imageSignedUrl, imageId;
     if (image) {
-      imageSignedUrl = (await s3.uploadImage(await image)).Location;
+      imageId = (await s3.uploadImage(await image)).Key;
+      imageSignedUrl = await s3.getSignedUrl(imageId);
     }
 
     const marker = await Marker.create({
@@ -118,12 +121,21 @@ export class MarkerResolver {
   async markers(): Promise<SnuberMarker[]> {
     const markers = await Marker.find();
     const snuberMarkers = markers.map((marker: Marker): SnuberMarker => {
-      const { id, creatorId, title, updatedAt, latitude, longitude } = marker;
+      const {
+        id,
+        creatorId,
+        title,
+        updatedAt,
+        latitude,
+        longitude,
+        imageSignedUrl
+      } = marker;
       return {
         id,
         creatorId,
         title,
         updatedAt,
+        imageSignedUrl,
         latLng: {
           latitude,
           longitude

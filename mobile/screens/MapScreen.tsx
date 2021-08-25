@@ -46,10 +46,12 @@ const MODALS = {
 export const MapScreen: React.FC = ({}) => {
   const [location, setLocation] = useState<Region | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+
   const { data: friendRequests, loading: loadingFriendRequests } =
     useIncomingFriendRequestsQuery({
       fetchPolicy: 'network-only'
     });
+
   const { data: markersData, loading } = useMarkersQuery({
     fetchPolicy: 'network-only'
   });

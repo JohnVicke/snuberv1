@@ -8,5 +8,6 @@ query Markers {
     updatedAt
     creatorId
     id
+    imageSignedUrl
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Callout } from 'react-native-maps';
 import styled from 'styled-components/native';
+import { Svg, Image as ImageSvg } from 'react-native-svg';
 
 import { Fonts } from '../../utils/styles/fonts';
 import { Colors } from '../../utils/styles/colors';
