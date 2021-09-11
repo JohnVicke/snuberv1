@@ -1,3 +1,4 @@
+import { ApolloProvider, InMemoryCache } from '@apollo/client';
 import {
   Pacifico_400Regular,
   useFonts as usePacifico
@@ -7,7 +8,9 @@ import {
   Poppins_700Bold,
   useFonts as usePoppins
 } from '@expo-google-fonts/poppins';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
+import { persistCache } from 'apollo3-cache-persist';
 import { requestMediaLibraryPermissionsAsync } from 'expo-image-picker';
 import {
   hasServicesEnabledAsync,
@@ -16,22 +19,11 @@ import {
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import {
-  ApolloClient,
-  ApolloLink,
-  ApolloProvider,
-  InMemoryCache
-} from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { persistCache } from 'apollo3-cache-persist';
-
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthenticationSwitch } from './navigation/AuthenticationSwitch';
 import { navigationRef } from './navigation/RootNavigation';
+import { createApolloClient } from './utils/createApolloClient';
 import { Colors } from './utils/styles/colors';
-import { onError } from '@apollo/client/link/error';
-import { createUploadLink } from 'apollo-upload-client';
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -44,33 +36,7 @@ const cache = new InMemoryCache({
   }
 });
 
-const errorLink = onError(({ graphQLErrors }) => {
-  if (graphQLErrors) graphQLErrors.map(({ message }) => console.error(message));
-});
-
-const uri = 'http://192.168.1.215:42069/graphql';
-
-const uploadLink = createUploadLink({ uri });
-
-const authLink = setContext((_, { headers }) => {
-  const token = AsyncStorage.getItem('token');
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : ''
-    }
-  };
-});
-
-const apolloClient = new ApolloClient({
-  link: ApolloLink.from([
-    errorLink,
-    authLink,
-    uploadLink as unknown as ApolloLink
-  ]),
-  credentials: 'include',
-  cache
-});
+const apolloClient = createApolloClient(cache);
 
 export default function App() {
   const [, setError] = useState<string | null>(null);
