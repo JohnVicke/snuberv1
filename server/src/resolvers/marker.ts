@@ -13,12 +13,39 @@ import {
   Resolver,
   Root,
   Subscription,
-  PubSubEngine,
   PubSub,
   UseMiddleware,
   Publisher
 } from 'type-graphql';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
+
+const parseMarkerToSnuberMarker = ({
+  id,
+  creatorId,
+  title,
+  updatedAt,
+  latitude,
+  longitude,
+  imageSignedUrl
+}: Marker) => {
+  return {
+    id,
+    creatorId,
+    title,
+    updatedAt,
+    imageSignedUrl,
+    latLng: {
+      latitude,
+      longitude
+    }
+  };
+};
+
+@ObjectType()
+class Test {
+  @Field()
+  out: string;
+}
 
 @InputType()
 class MarkerInput {
@@ -129,25 +156,8 @@ export class MarkerResolver {
   async markers(): Promise<SnuberMarker[]> {
     const markers = await Marker.find();
     const snuberMarkers = markers.map((marker: Marker): SnuberMarker => {
-      const {
-        id,
-        creatorId,
-        title,
-        updatedAt,
-        latitude,
-        longitude,
-        imageSignedUrl
-      } = marker;
       return {
-        id,
-        creatorId,
-        title,
-        updatedAt,
-        imageSignedUrl,
-        latLng: {
-          latitude,
-          longitude
-        }
+        ...parseMarkerToSnuberMarker(marker)
       };
     });
     return snuberMarkers;
@@ -163,9 +173,7 @@ export class MarkerResolver {
   @Subscription({
     topics: 'MARKERS'
   })
-  newMarker(@Root() payload: Marker): Marker {
-    console.log('\nRunning this shit\n');
-    console.log(payload);
-    return payload;
+  newMarker(@Root() payload: Marker): SnuberMarker {
+    return parseMarkerToSnuberMarker(payload);
   }
 }

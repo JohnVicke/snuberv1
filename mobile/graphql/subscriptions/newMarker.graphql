@@ -1,0 +1,13 @@
+subscription newMarker {
+  newMarker {
+    latLng {
+      latitude
+      longitude
+    }
+    title
+    updatedAt
+    creatorId
+    imageSignedUrl
+    id
+  }
+}

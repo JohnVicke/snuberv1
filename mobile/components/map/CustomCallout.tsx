@@ -39,7 +39,7 @@ export const CustomCallout: React.FC<CustomCalloutProps> = ({
   return (
     <Callout tooltip>
       <CalloutView>
-        <Heading>{calloutData?.title}</Heading>
+        <Heading>{calloutData?.id}</Heading>
         <Buttons>
           <Button width={135} onPress={() => {}} outlined>
             Chatta

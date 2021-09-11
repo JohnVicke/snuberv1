@@ -32,6 +32,7 @@ import { Updoot } from './entities/Updoot';
 import { Friends } from './entities/Friends';
 import { FriendsResolver } from './resolvers/friends';
 import { S3FileManager } from './utils/s3';
+import { createServer } from 'http';
 
 (async () => {
   await createConnection({
@@ -89,8 +90,16 @@ import { S3FileManager } from './utils/s3';
       resolvers: [MarkerResolver, UserResolver, PostResolver, FriendsResolver],
       validate: false
     }),
-
-    subscriptions: '/subscriptions',
+    subscriptions: {
+      path: '/subscriptions',
+      keepAlive: 9000,
+      onConnect: () => {
+        console.log('Client connected');
+      },
+      onDisconnect: () => {
+        console.log('Client disconnected');
+      }
+    },
     context: ({ req, res }): SnuberContext => ({
       req,
       res,
@@ -101,9 +110,11 @@ import { S3FileManager } from './utils/s3';
     })
   });
 
+  const httpServer = createServer(app);
   apolloServer.applyMiddleware({ app, cors: false });
+  apolloServer.installSubscriptionHandlers(httpServer);
 
-  app.listen(typeof PORT === 'string' ? parseInt(PORT) : PORT, () => {
+  httpServer.listen(typeof PORT === 'string' ? parseInt(PORT) : PORT, () => {
     console.log(`server started on port:${PORT}🚀`);
   });
 })().catch((error) => {

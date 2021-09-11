@@ -13,7 +13,8 @@ import { ProfileButton } from '../components/ProfileButton';
 import {
   SnuberMarker,
   useIncomingFriendRequestsQuery,
-  useMarkersQuery
+  useMarkersQuery,
+  useNewMarkerSubscription
 } from '../generated/graphql';
 import { bottomBarHeight } from '../utils/styles/constants';
 import NightMap from '../utils/styles/customMapStyleNight.json';
@@ -46,6 +47,15 @@ const MODALS = {
 export const MapScreen: React.FC = ({}) => {
   const [location, setLocation] = useState<Region | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const [modalStatus, setModalStatus] = useState(MODALS);
+  const [combinedMarkers, setCombinedMarkers] = useState<SnuberMarker[]>([]);
+
+  const {
+    loading: newMarkerLoading,
+    data: newMarkerData,
+    error: newMarkerError,
+    variables
+  } = useNewMarkerSubscription();
 
   const { data: friendRequests, loading: loadingFriendRequests } =
     useIncomingFriendRequestsQuery({
@@ -53,10 +63,23 @@ export const MapScreen: React.FC = ({}) => {
     });
 
   const { data: markersData, loading } = useMarkersQuery({
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'network-only'
   });
 
-  const [modalStatus, setModalStatus] = useState(MODALS);
+  useEffect(() => {
+    if (markersData) {
+      setCombinedMarkers(markersData.markers);
+    }
+  }, [markersData?.markers]);
+
+  useEffect(() => {
+    console.log('hello world');
+    if (newMarkerData?.newMarker) {
+      setCombinedMarkers([...combinedMarkers, newMarkerData.newMarker]);
+    }
+  }, [newMarkerData]);
+
+  console.log('New marker!!', newMarkerData?.newMarker);
 
   useEffect(() => {
     (async () => {
@@ -103,10 +126,9 @@ export const MapScreen: React.FC = ({}) => {
         showsMyLocationButton={false}
         followsUserLocation
       >
-        {markersData?.markers &&
-          markersData.markers.map((marker: SnuberMarker) => (
-            <CustomMarker key={marker.id} marker={marker} />
-          ))}
+        {combinedMarkers.map((marker: SnuberMarker) => (
+          <CustomMarker key={marker.id} marker={marker} />
+        ))}
       </Map>
 
       {friendRequests?.incomingFriendRequests && (

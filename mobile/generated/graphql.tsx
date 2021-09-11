@@ -218,6 +218,11 @@ export type SnuberMarker = {
   imageSignedUrl?: Maybe<Scalars['String']>;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  newMarker: SnuberMarker;
+};
+
 
 export type User = {
   __typename?: 'User';
@@ -388,6 +393,21 @@ export type MeQuery = (
     { __typename?: 'User' }
     & Pick<User, 'username' | 'avatarId' | 'avatarSignedUrl' | 'id'>
   )> }
+);
+
+export type NewMarkerSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewMarkerSubscription = (
+  { __typename?: 'Subscription' }
+  & { newMarker: (
+    { __typename?: 'SnuberMarker' }
+    & Pick<SnuberMarker, 'title' | 'updatedAt' | 'creatorId' | 'imageSignedUrl' | 'id'>
+    & { latLng: (
+      { __typename?: 'LatLng' }
+      & Pick<LatLng, 'latitude' | 'longitude'>
+    ) }
+  ) }
 );
 
 export const RegularErrorFragmentDoc = gql`
@@ -767,3 +787,40 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const NewMarkerDocument = gql`
+    subscription newMarker {
+  newMarker {
+    latLng {
+      latitude
+      longitude
+    }
+    title
+    updatedAt
+    creatorId
+    imageSignedUrl
+    id
+  }
+}
+    `;
+
+/**
+ * __useNewMarkerSubscription__
+ *
+ * To run a query within a React component, call `useNewMarkerSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewMarkerSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewMarkerSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useNewMarkerSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewMarkerSubscription, NewMarkerSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewMarkerSubscription, NewMarkerSubscriptionVariables>(NewMarkerDocument, options);
+      }
+export type NewMarkerSubscriptionHookResult = ReturnType<typeof useNewMarkerSubscription>;
+export type NewMarkerSubscriptionResult = Apollo.SubscriptionResult<NewMarkerSubscription>;
