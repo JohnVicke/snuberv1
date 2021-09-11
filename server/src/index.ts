@@ -90,6 +90,7 @@ import { S3FileManager } from './utils/s3';
       validate: false
     }),
 
+    subscriptions: '/subscriptions',
     context: ({ req, res }): SnuberContext => ({
       req,
       res,

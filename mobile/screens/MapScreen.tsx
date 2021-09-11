@@ -53,7 +53,7 @@ export const MapScreen: React.FC = ({}) => {
     });
 
   const { data: markersData, loading } = useMarkersQuery({
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'cache-and-network'
   });
 
   const [modalStatus, setModalStatus] = useState(MODALS);

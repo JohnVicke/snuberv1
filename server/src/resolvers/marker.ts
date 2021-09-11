@@ -11,7 +11,12 @@ import {
   ObjectType,
   Query,
   Resolver,
-  UseMiddleware
+  Root,
+  Subscription,
+  PubSubEngine,
+  PubSub,
+  UseMiddleware,
+  Publisher
 } from 'type-graphql';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 
@@ -84,22 +89,23 @@ export class MarkerResolver {
   @UseMiddleware(isAuth)
   async createMarker(
     @Arg('options') { image, ...options }: MarkerInput,
-    @Ctx() { req, s3 }: SnuberContext
+    @Ctx() { req, s3 }: SnuberContext,
+    @PubSub('MARKERS') publish: Publisher<Marker>
   ): Promise<MarkerResponse> {
     const userHasMarker = await Marker.findOne({
       creatorId: req.session.userId
     });
 
-    if (!!userHasMarker) {
-      return {
-        errors: [
-          {
-            type: 'already_exists',
-            message: 'Du har redan ett nödanrop uppe idiot!'
-          }
-        ]
-      };
-    }
+    //if (!!userHasMarker) {
+    //return {
+    //errors: [
+    //{
+    //type: 'already_exists',
+    //message: 'Du har redan ett nödanrop uppe idiot!'
+    //}
+    //]
+    //};
+    //}
 
     let imageSignedUrl, imageId;
     if (image) {
@@ -112,6 +118,8 @@ export class MarkerResolver {
       creatorId: req.session.userId,
       imageSignedUrl
     }).save();
+
+    await publish(marker);
 
     return { marker };
   }
@@ -150,5 +158,14 @@ export class MarkerResolver {
   async removeMarker(@Ctx() { req }: SnuberContext): Promise<boolean> {
     await Marker.delete({ creatorId: req.session.userId });
     return true;
+  }
+
+  @Subscription({
+    topics: 'MARKERS'
+  })
+  newMarker(@Root() payload: Marker): Marker {
+    console.log('\nRunning this shit\n');
+    console.log(payload);
+    return payload;
   }
 }
